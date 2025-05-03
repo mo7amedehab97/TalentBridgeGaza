@@ -1,13 +1,9 @@
-import { createUsersTable, insertTestUsers } from '../models/user';
+import { initializeDatabase } from '../models/user';
 
-const initializeDatabase = async () => {
+const init = async () => {
   try {
-    console.log('Creating users table...');
-    await createUsersTable();
-    
-    console.log('Inserting test users...');
-    await insertTestUsers();
-    
+    console.log('Initializing database...');
+    await initializeDatabase();
     console.log('Database initialization completed successfully!');
   } catch (error) {
     console.error('Error initializing database:', error);
@@ -16,4 +12,4 @@ const initializeDatabase = async () => {
   }
 };
 
-initializeDatabase(); 
+init(); 

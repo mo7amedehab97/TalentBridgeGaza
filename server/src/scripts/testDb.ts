@@ -1,17 +1,18 @@
-import pool from '../config/database';
+import sequelize from '../config/database';
+import User from '../models/user';
 
 const testDatabase = async () => {
   try {
     console.log('Testing database connection...');
     
     // Test connection
-    const result = await pool.query('SELECT NOW()');
-    console.log('Database connection successful! Current time:', result.rows[0].now);
+    await sequelize.authenticate();
+    console.log('Database connection successful!');
     
     // Query users
-    const users = await pool.query('SELECT * FROM users');
+    const users = await User.findAll();
     console.log('\nUsers in database:');
-    console.log(users.rows);
+    console.log(JSON.stringify(users, null, 2));
     
   } catch (error) {
     console.error('Error testing database:', error);
