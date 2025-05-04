@@ -2,38 +2,38 @@ name: Deploy Application
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
-          
+          node-version: "18"
+          cache: "npm"
+
       - name: Install dependencies (Client)
         working-directory: ./client
         run: npm ci
-        
+
       - name: Build Client
         working-directory: ./client
         run: npm run build
-        
+
       - name: Install dependencies (Server)
         working-directory: ./server
         run: npm ci
-        
+
       - name: Build Server
         working-directory: ./server
         run: npm run build
-        
+
       - name: Run tests (if any)
         working-directory: ./server
         run: npm test
@@ -46,11 +46,11 @@ jobs:
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-token: zApe40ggOHRX0HkyNHZMGhhG
+          vercel-org-id: team_vYJzH5FtvZEM8baybRtKnhDL
+          vercel-project-id: prj_XK0vd8YX1Yu0MDqTcEckOlmxkPyb
           working-directory: ./client
-          vercel-args: '--prod'
+          vercel-args: "--prod"
 
   deploy-server:
     needs: build-and-test
@@ -62,4 +62,4 @@ jobs:
         with:
           service-id: ${{ secrets.RENDER_SERVER_SERVICE_ID }}
           api-key: ${{ secrets.RENDER_API_KEY }}
-          working-directory: ./server 
+          working-directory: ./server
