@@ -22,8 +22,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to Render
-        uses: render-actions/deploy@v1
-        with:
-          service-id: srv-d0b1b3euk2gs73c9m23g?key=aS9sGrfzQKM
-          api-key: rnd_cESLWXSc2vIm38ns8LxbmY2vPzBS
-          working-directory: ./server
+        run: |
+          curl -fsSL https://cli.render.com/install.sh | sh
+          render service deploy srv-d0b1b3euk2gs73c9m23g --key aS9sGrfzQKM
+        working-directory: ./server
