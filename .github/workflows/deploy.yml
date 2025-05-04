@@ -7,53 +7,20 @@ on:
     branches: [main]
 
 jobs:
-  build-and-test:
+  build-and-deploy-server:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Setup Client Environment
-        working-directory: ./client
-        run: |
-          npm install -g pnpm
-          pnpm install
 
       - name: Setup Server Environment
         working-directory: ./server
         run: |
           npm ci
 
-      - name: Build Client
-        working-directory: ./client
-        run: pnpm run build
-
       - name: Build Server
         working-directory: ./server
         run: npm run build
 
-  deploy-client:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: zApe40ggOHRX0HkyNHZMGhhG
-          vercel-org-id: team_vYJzH5FtvZEM8baybRtKnhDL
-          vercel-project-id: prj_XK0vd8YX1Yu0MDqTcEckOlmxkPyb
-          vercel-args: "--prod"
-          working-directory: client
-
-  deploy-server:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
       - name: Deploy to Render
         uses: render-actions/deploy@v1
         with:
