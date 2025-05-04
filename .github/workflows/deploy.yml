@@ -60,6 +60,6 @@ jobs:
       - name: Deploy to Render
         uses: render-actions/deploy@v1
         with:
-          service-id: ${{ secrets.RENDER_SERVER_SERVICE_ID }}
-          api-key: ${{ secrets.RENDER_API_KEY }}
+          service-id: srv-d0b1b3euk2gs73c9m23g?key=aS9sGrfzQKM
+          api-key: rnd_cESLWXSc2vIm38ns8LxbmY2vPzBS
           working-directory: ./server
