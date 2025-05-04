@@ -3,13 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const sequelize = new Sequelize({
-  dialect: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  username: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DB_NAME || 'talent_bridge_db',
+const connectionString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+
+const sequelize = new Sequelize(connectionString, {
   logging: false, // Set to console.log to see SQL queries
   dialectOptions: {
     ssl: {
