@@ -18,13 +18,18 @@ jobs:
           node-version: "18"
           cache: "npm"
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Install dependencies (Client)
         working-directory: ./client
-        run: npm ci
+        run: pnpm install
 
       - name: Build Client
         working-directory: ./client
-        run: npm run build
+        run: pnpm run build
 
       - name: Install dependencies (Server)
         working-directory: ./server
