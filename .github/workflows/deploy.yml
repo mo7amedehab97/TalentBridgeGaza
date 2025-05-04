@@ -46,8 +46,8 @@ jobs:
           vercel-token: zApe40ggOHRX0HkyNHZMGhhG
           vercel-org-id: team_vYJzH5FtvZEM8baybRtKnhDL
           vercel-project-id: prj_XK0vd8YX1Yu0MDqTcEckOlmxkPyb
-          working-directory: ./client
           vercel-args: "--prod"
+          working-directory: client
 
   deploy-server:
     needs: build-and-test
