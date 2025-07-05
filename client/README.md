@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TalentBridge Gaza
 
-## Getting Started
+A job platform connecting talented individuals with opportunities in Gaza, Palestine.
 
-First, run the development server:
+## 🎨 Design System
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This project uses a custom Tailwind CSS design system with the following color palette:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Colors
+- `primary-green` (#4A6741) - Brand identity, buttons, titles
+- `warm-sand` (#EADBB0) - Backgrounds, secondary UI
+- `crimson-red` (#D63C3C) - Warnings, delete actions
+- `sky-blue` (#4A90E2) - Links, success messages
+- `charcoal` (#2F2F2F) - Text, dark sections
+- `light-gray` (#F2F2F2) - Backgrounds
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Components
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### Form Components
+- `Input` - Text, email, password, tel, url inputs
+- `Select` - Dropdown selections
+- `Textarea` - Multi-line text input
+- `RadioGroup` - Radio button groups
+- `Checkbox` - Single checkbox
+- `Form` - Form wrapper with React Hook Form + Zod
 
-## Learn More
+#### UI Components
+- `Button` - Primary, secondary, destructive variants
+- `Alert` - Success, error, warning messages
+- `Badge` - Status indicators (applied, pending, rejected, remote)
+- `Card` - Content containers
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Start the development server:
+   ```bash
+   pnpm start
+   ```
 
-## Deploy on Vercel
+3. View the design system demo:
+   Navigate to `/demo` to see all components in action.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📝 Form Validation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The project uses React Hook Form with Zod validation. Available schemas include:
+- `userRegistrationSchema`
+- `userLoginSchema`
+- `jobApplicationSchema`
+- `contactFormSchema`
+
+## 🛠️ Tech Stack
+
+- React 18
+- TypeScript
+- Tailwind CSS
+- React Hook Form
+- Zod
+- React Router
