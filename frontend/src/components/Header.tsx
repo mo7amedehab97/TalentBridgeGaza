@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import Button from "./Button";
 import Container from "./Container";
 
@@ -47,31 +49,31 @@ const Header: React.FC = () => {
           </div>
           <nav className="hidden md:flex gap-6">
             <Link
-              to="/"
+              href="/"
               className="text-dark-gray no-underline font-medium transition-colors hover:text-primary-blue"
             >
               Home
             </Link>
             <Link
-              to="/about"
+              href="/about"
               className="text-dark-gray no-underline font-medium transition-colors hover:text-primary-blue"
             >
               About
             </Link>
             <Link
-              to="/pricing"
+              href="/pricing"
               className="text-dark-gray no-underline font-medium transition-colors hover:text-primary-blue"
             >
               Pricing
             </Link>
             <Link
-              to="/freelancers"
+              href="/freelancers"
               className="text-dark-gray no-underline font-medium transition-colors hover:text-primary-blue"
             >
               For Freelancers
             </Link>
             <Link
-              to="/employers"
+              href="/employers"
               className="text-dark-gray no-underline font-medium transition-colors hover:text-primary-blue"
             >
               For Employers
@@ -82,7 +84,7 @@ const Header: React.FC = () => {
               Sign In
             </Button>
             <Button
-              to="/get-started"
+              href="/get-started"
               variant="primary"
               className="font-semibold px-5 shadow-md"
             >
@@ -138,35 +140,35 @@ const Header: React.FC = () => {
         </button>
         <div className="flex flex-col p-6 gap-6 mt-16">
           <Link
-            to="/"
+            href="/"
             className="text-dark-gray no-underline font-medium text-lg transition-colors hover:text-primary-blue"
             onClick={() => setMenuOpen(false)}
           >
             Home
           </Link>
           <Link
-            to="/about"
+            href="/about"
             className="text-dark-gray no-underline font-medium text-lg transition-colors hover:text-primary-blue"
             onClick={() => setMenuOpen(false)}
           >
             About
           </Link>
           <Link
-            to="/pricing"
+            href="/pricing"
             className="text-dark-gray no-underline font-medium text-lg transition-colors hover:text-primary-blue"
             onClick={() => setMenuOpen(false)}
           >
             Pricing
           </Link>
           <Link
-            to="/freelancers"
+            href="/freelancers"
             className="text-dark-gray no-underline font-medium text-lg transition-colors hover:text-primary-blue"
             onClick={() => setMenuOpen(false)}
           >
             For Freelancers
           </Link>
           <Link
-            to="/employers"
+            href="/employers"
             className="text-dark-gray no-underline font-medium text-lg transition-colors hover:text-primary-blue"
             onClick={() => setMenuOpen(false)}
           >
@@ -174,7 +176,7 @@ const Header: React.FC = () => {
           </Link>
           <hr className="border-t-2 border-primary-blue" />
           <Button
-            to="/signin"
+            href="/signin"
             variant="outline"
             className=""
             onClick={() => setMenuOpen(false)}
@@ -182,7 +184,7 @@ const Header: React.FC = () => {
             Sign In
           </Button>
           <Button
-            to="/get-started"
+            href="/get-started"
             variant="primary"
             className="font-semibold px-5 shadow-md"
             onClick={() => setMenuOpen(false)}

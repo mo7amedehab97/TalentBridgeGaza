@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -31,8 +31,9 @@ const Button: React.FC<ButtonProps> = ({
     variants[variant] || variants.primary
   } ${className}`;
   if (to) {
+    const { href, ...linkProps } = props as React.ComponentProps<typeof Link>;
     return (
-      <Link to={to} className={style} {...(props as any)}>
+      <Link href={to} className={style} {...linkProps}>
         {children}
       </Link>
     );
