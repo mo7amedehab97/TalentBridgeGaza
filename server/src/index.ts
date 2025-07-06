@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import sequelize from './config/database';
 import Talent from './models/Talent';
+import authRoutes from './routes/auth';
 
 // Load environment variables
 dotenv.config();
@@ -25,13 +26,16 @@ app.get('/api/talents', async (req, res) => {
   }
 });
 
+app.use('/api/auth', authRoutes);
+
 sequelize
   .authenticate()
   .then(() => {
     console.log('Database connection established');
-    return sequelize.sync();
+    return sequelize.sync({ force: true });
   })
   .then(() => {
+    console.log('Database synchronized successfully');
     app.listen(port, '0.0.0.0', () => {
       console.log(`Server is running on port ${port}`);
     });
