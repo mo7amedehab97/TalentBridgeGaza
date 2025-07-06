@@ -1,8 +1,9 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -16,7 +17,7 @@ module.exports = {
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       colors: {
-        // New Design System Colors
+        // Design System Colors
         'primary-blue': '#4A90E2',
         'accent-green': '#A7D129',
         'dark-gray': '#333333',
@@ -73,18 +74,18 @@ module.exports = {
         'table-odd': '#FFFFFF',
         'table-hover': '#F7F9FB',
         
-        // Legacy colors for backward compatibility (mapped to new colors)
-        'primary-green': '#4A90E2', // Now maps to primary-blue
-        'warm-sand': '#A7D129', // Now maps to accent-green
-        'crimson-red': '#D63C3C', // Now maps to alert-red
-        'sky-blue': '#4A90E2', // Now maps to primary-blue
-        'charcoal': '#333333', // Now maps to dark-gray
-        'light-gray-old': '#F2F2F2', // Old light gray
-        bannerBg: '#F7F9FB', // Now maps to light-gray
-        primary: '#4A90E2', // Now maps to primary-blue
-        secondary: '#A7D129', // Now maps to accent-green
-        'primary-hover': '#397EBB', // Now maps to primary-blue-hover
-        'secondary-hover': '#8FB81F', // Now maps to accent-green-hover
+        // Legacy colors for backward compatibility
+        'primary-green': '#4A90E2',
+        'warm-sand': '#A7D129',
+        'crimson-red': '#D63C3C',
+        'sky-blue': '#4A90E2',
+        'charcoal': '#333333',
+        'light-gray-old': '#F2F2F2',
+        'bannerBg': '#F7F9FB',
+        'primary': '#4A90E2',
+        'secondary': '#A7D129',
+        'primary-hover': '#397EBB',
+        'secondary-hover': '#8FB81F',
       },
       spacing: {
         '18': '4.5rem',
@@ -100,4 +101,5 @@ module.exports = {
     },
   },
   plugins: [],
-}; 
+}
+
