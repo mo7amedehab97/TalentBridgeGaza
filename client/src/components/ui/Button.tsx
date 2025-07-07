@@ -8,17 +8,21 @@ interface ButtonProps {
   disabled?: boolean;
   onClick?: () => void;
   className?: string;
+  to?: string;
 }
 
-export const Button: React.FC<ButtonProps> = ({
-  children,
-  variant = "primary",
-  size = "md",
-  type = "button",
-  disabled = false,
-  onClick,
-  className = "",
-}) => {
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+export const Button: React.FC<ButtonProps> = (props) => {
+  const {
+    children,
+    variant = "primary",
+    size = "md",
+    type = "button",
+    disabled = false,
+    onClick,
+    className = "",
+  } = props;
+
   const baseClasses =
     "inline-flex items-center justify-center rounded-md font-medium text-sm leading-none border border-transparent cursor-pointer transition-all duration-150 ease-in-out text-decoration-none min-h-[2.5rem]";
 
@@ -48,6 +52,22 @@ export const Button: React.FC<ButtonProps> = ({
   ]
     .filter(Boolean)
     .join(" ");
+
+  const to = props.to;
+
+  if (to) {
+    return (
+      <a
+        href={to}
+        className={classes}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+        onClick={disabled ? (e) => e.preventDefault() : onClick}
+      >
+        {children}
+      </a>
+    );
+  }
 
   return (
     <button

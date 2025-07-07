@@ -1,9 +1,14 @@
 import React from "react";
-import { useForm, FormProvider, SubmitHandler } from "react-hook-form";
+import {
+  useForm,
+  FormProvider,
+  SubmitHandler,
+  DefaultValues,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-interface FormProps<T extends z.ZodType> {
+interface FormProps<T extends z.ZodTypeAny> {
   schema: T;
   onSubmit: SubmitHandler<z.infer<T>>;
   children: React.ReactNode;
@@ -11,7 +16,7 @@ interface FormProps<T extends z.ZodType> {
   className?: string;
 }
 
-export function Form<T extends z.ZodType>({
+export function Form<T extends z.ZodTypeAny>({
   schema,
   onSubmit,
   children,
@@ -20,13 +25,10 @@ export function Form<T extends z.ZodType>({
 }: FormProps<T>) {
   const methods = useForm<z.infer<T>>({
     resolver: zodResolver(schema),
-    defaultValues,
+    defaultValues: defaultValues as DefaultValues<z.infer<T>>,
   });
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting, errors },
-  } = methods;
+  const { handleSubmit } = methods;
 
   return (
     <FormProvider {...methods}>

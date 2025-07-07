@@ -3,6 +3,7 @@ import Title from "./Title";
 import Button from "./Button";
 import Container from "./Container";
 import BusinessSolutionsSection from "./BusinessSolutionsSection";
+import Image from "next/image";
 
 const Banner: React.FC = () => {
   return (
@@ -36,9 +37,11 @@ const Banner: React.FC = () => {
             </div>
             {/* Right: Banner Image */}
             <div className="flex-1 flex justify-center md:justify-end">
-              <img
+              <Image
                 src="/images/banner.png"
                 alt="Banner dashboard preview"
+                width={800}
+                height={400}
                 className="w-full max-w-xl md:max-w-2xl rounded-xl shadow-lg"
                 loading="lazy"
               />

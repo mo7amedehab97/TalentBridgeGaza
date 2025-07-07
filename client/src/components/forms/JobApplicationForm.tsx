@@ -1,15 +1,5 @@
 import React from "react";
-import {
-  Form,
-  Input,
-  Select,
-  Textarea,
-  RadioGroup,
-  Checkbox,
-  Button,
-  Alert,
-  Badge,
-} from "../ui";
+import { Form, Input, Select, Textarea, Checkbox, Button, Alert } from "../ui";
 import {
   jobApplicationSchema,
   JobApplicationForm as JobApplicationFormType,
@@ -46,7 +36,6 @@ const skillOptions = [
 
 interface JobApplicationFormProps {
   jobTitle: string;
-  companyName: string;
   onSubmit: (data: JobApplicationFormType) => void;
   isLoading?: boolean;
   error?: string;
@@ -54,7 +43,6 @@ interface JobApplicationFormProps {
 
 export const JobApplicationForm: React.FC<JobApplicationFormProps> = ({
   jobTitle,
-  companyName,
   onSubmit,
   isLoading = false,
   error,

@@ -84,7 +84,7 @@ const Header: React.FC = () => {
               Sign In
             </Button>
             <Button
-              href="/get-started"
+              to="/get-started"
               variant="primary"
               className="font-semibold px-5 shadow-md"
             >
@@ -176,7 +176,7 @@ const Header: React.FC = () => {
           </Link>
           <hr className="border-t-2 border-primary-blue" />
           <Button
-            href="/signin"
+            to="/signin"
             variant="outline"
             className=""
             onClick={() => setMenuOpen(false)}
@@ -184,7 +184,7 @@ const Header: React.FC = () => {
             Sign In
           </Button>
           <Button
-            href="/get-started"
+            to="/get-started"
             variant="primary"
             className="font-semibold px-5 shadow-md"
             onClick={() => setMenuOpen(false)}

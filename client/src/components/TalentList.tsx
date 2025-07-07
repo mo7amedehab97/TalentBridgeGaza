@@ -2,21 +2,19 @@ import React from "react";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import { fetchTalents } from "../features/talents/talentsSlice";
+import Image from "next/image";
 
 const TalentList: React.FC = () => {
   const dispatch = useAppDispatch();
-  const {
-    talents = [],
-    loading = false,
-    error = null,
-  } = useAppSelector((state) => state.talents);
+  const { talents = [], loading = false } = useAppSelector(
+    (state) => state.talents
+  );
 
   React.useEffect(() => {
     dispatch(fetchTalents());
   }, [dispatch]);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
   if (!talents || talents.length === 0) return <div>No talents found</div>;
 
   return (
@@ -25,9 +23,11 @@ const TalentList: React.FC = () => {
       <div className="talent-grid">
         {talents.map((talent) => (
           <div key={talent.talent_id} className="talent-card">
-            <img
+            <Image
               src={talent.profile_picture_url || "/default-avatar.png"}
               alt={`${talent.first_name} ${talent.last_name}`}
+              width={80}
+              height={80}
               className="talent-avatar"
             />
             <h3>
