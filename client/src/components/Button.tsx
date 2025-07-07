@@ -31,9 +31,8 @@ const Button: React.FC<ButtonProps> = ({
     variants[variant] || variants.primary
   } ${className}`;
   if (to) {
-    const { href, ...linkProps } = props as React.ComponentProps<typeof Link>;
     return (
-      <Link href={to} className={style} {...linkProps}>
+      <Link href={to} className={style}>
         {children}
       </Link>
     );

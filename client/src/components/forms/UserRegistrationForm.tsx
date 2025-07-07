@@ -1,25 +1,9 @@
 import React from "react";
-import { Form, Input, Select, Checkbox, Button, Alert } from "../ui";
+import { Form, Input, Checkbox, Button, Alert } from "../ui";
 import {
   userRegistrationSchema,
   UserRegistrationForm as UserRegistrationFormType,
 } from "../../lib/validations";
-
-const experienceOptions = [
-  { value: "entry", label: "Entry Level (0-2 years)" },
-  { value: "mid", label: "Mid Level (3-5 years)" },
-  { value: "senior", label: "Senior Level (6+ years)" },
-  { value: "lead", label: "Lead/Manager" },
-];
-
-const educationOptions = [
-  { value: "high-school", label: "High School" },
-  { value: "associate", label: "Associate Degree" },
-  { value: "bachelor", label: "Bachelor's Degree" },
-  { value: "master", label: "Master's Degree" },
-  { value: "phd", label: "PhD" },
-  { value: "other", label: "Other" },
-];
 
 interface UserRegistrationFormProps {
   onSubmit: (data: UserRegistrationFormType) => void;

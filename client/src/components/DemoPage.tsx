@@ -119,8 +119,8 @@ const DemoPage: React.FC = () => {
         <h2 className="text-3xl font-semibold mb-6">Alerts</h2>
         <div className="space-y-4">
           <Alert type="success" title="Success!">
-            Your application has been submitted successfully. We'll review it
-            and get back to you soon.
+            Your application has been submitted successfully. We&apos;ll review
+            it and get back to you soon.
           </Alert>
           <Alert type="error" title="Error">
             There was an error submitting your application. Please try again or
@@ -153,7 +153,7 @@ const DemoPage: React.FC = () => {
             meta="TechCorp • Gaza, Palestine • Full-time"
           >
             <p className="mb-4">
-              We're looking for a talented Frontend Developer to join our
+              We&apos;re looking for a talented Frontend Developer to join our
               team...
             </p>
             <div className="flex gap-2 mb-4">
@@ -210,7 +210,7 @@ const DemoPage: React.FC = () => {
                 name="demo-input"
                 label="Text Input"
                 placeholder="Enter some text"
-                helpText="This is a help text example"
+                helpText="We'll use this to send you important updates"
               />
 
               <Select

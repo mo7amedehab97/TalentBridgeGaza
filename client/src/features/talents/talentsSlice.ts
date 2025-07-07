@@ -16,13 +16,11 @@ interface Talent {
 interface TalentsState {
   talents: Talent[];
   loading: boolean;
-  error: string | null;
 }
 
 const initialState: TalentsState = {
   talents: [],
   loading: false,
-  error: null,
 };
 
 export const fetchTalents = createAsyncThunk(
@@ -31,7 +29,7 @@ export const fetchTalents = createAsyncThunk(
     try {
       const response = await axios.get('http://localhost:5000/api/talents');
       return response.data;
-    } catch (error) {
+    } catch {
       return rejectWithValue('Failed to fetch talents');
     }
   }
@@ -45,15 +43,13 @@ const talentsSlice = createSlice({
     builder
       .addCase(fetchTalents.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchTalents.fulfilled, (state, action) => {
         state.loading = false;
         state.talents = action.payload;
       })
-      .addCase(fetchTalents.rejected, (state, action) => {
+      .addCase(fetchTalents.rejected, (state) => {
         state.loading = false;
-        state.error = action.payload as string;
       });
   },
 });

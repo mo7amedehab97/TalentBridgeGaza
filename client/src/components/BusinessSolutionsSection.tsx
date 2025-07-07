@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Button } from "./ui/Button";
+import Image from "next/image";
 
 const TABS = [
   {
@@ -103,9 +104,11 @@ const BusinessSolutionsSection: React.FC = () => {
             </div>
           </div>
           <div className="flex-1 w-full flex justify-center">
-            <img
+            <Image
               src={tab.image}
               alt={tab.label}
+              width={400}
+              height={256}
               className="rounded-xl object-cover w-full max-w-md h-64"
               loading="lazy"
             />
