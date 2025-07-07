@@ -1,11 +1,14 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
-dotenv.config();
+// Load the correct .env file based on NODE_ENV
+dotenv.config({
+  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
+});
 
-const connectionString = `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+const connectionString = process.env.DATABASE_URL;
 
-const sequelize = new Sequelize(connectionString, {
+const sequelize = new Sequelize(connectionString as string, {
   logging: false, // Set to console.log to see SQL queries
   dialectOptions: {
     ssl: {
