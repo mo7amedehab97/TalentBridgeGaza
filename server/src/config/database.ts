@@ -1,21 +1,19 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 
-// Load the correct .env file based on NODE_ENV
 dotenv.config({
-  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
+  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development',
 });
 
-const connectionString = process.env.DATABASE_URL;
-
-const sequelize = new Sequelize(connectionString as string, {
-  logging: false, // Set to console.log to see SQL queries
+const sequelize = new Sequelize(process.env.DATABASE_URL as string, {
+  logging: false,
+  dialect: 'postgres',
   dialectOptions: {
-    ssl: {
+    ssl: process.env.NODE_ENV === 'production' ? {
       require: true,
-      rejectUnauthorized: false // This is needed for some cloud providers
-    }
-  }
+      rejectUnauthorized: false,
+    } : undefined,
+  },
 });
 
-export default sequelize; 
+export default sequelize;

@@ -1,5 +1,5 @@
 import UserValidation, { ValidationError } from './validation';
-import { Role } from '../models/user';
+import { Role } from '../Database/models/user';
 
 // Test cases for email validation
 console.log('=== Email Validation Tests ===');

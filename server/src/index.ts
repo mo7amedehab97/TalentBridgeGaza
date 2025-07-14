@@ -1,45 +1,26 @@
-import express from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
-import sequelize from './config/database';
-import Talent from './models/Talent';
-import authRoutes from './routes/auth';
-
-// Load environment variables
 dotenv.config();
 
-const app = express();
-const port = parseInt(process.env.PORT || '5000');
+import app from './app';
+import sequelize from './config/database';
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+const PORT = parseInt(process.env.PORT || '5000');
 
-// Routes
-app.get('/api/talents', async (req, res) => {
+const startServer = async () => {
   try {
-    const talents = await Talent.findAll();
-    res.json(talents);
-  } catch (error) {
-    console.error('Error fetching talents:', error);
-    res.status(500).json({ error: 'Failed to fetch talents' });
-  }
-});
+    await sequelize.authenticate();
+    console.log('✅ Database connected');
 
-app.use('/api/auth', authRoutes);
+    await sequelize.sync({ force: false });
+    console.log('✅ Models synced');
 
-sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Database connection established');
-    return sequelize.sync({ force: true });
-  })
-  .then(() => {
-    console.log('Database synchronized successfully');
-    app.listen(port, '0.0.0.0', () => {
-      console.log(`Server is running on port ${port}`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
-  })
-  .catch((error: Error) => {
-    console.error('Database connection failed:', error.message);
-  }); 
+  } catch (error) {
+    console.error('❌ Server failed to start:', (error as Error).message);
+    process.exit(1);
+  }
+};
+
+startServer();
