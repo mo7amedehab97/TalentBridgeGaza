@@ -4,9 +4,18 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Button from "./Button";
 import Container from "./Container";
+import { useSession, signOut } from "next-auth/react";
 
 const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const isAuthenticated = status === "authenticated";
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/login" });
+  };
+  console.log(user, "user");
   return (
     <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-40">
       <Container>
@@ -80,16 +89,41 @@ const Header: React.FC = () => {
             </Link>
           </nav>
           <div className="hidden md:flex items-center gap-4">
-            <Button to="/signin" variant="outline" className="">
-              Sign In
-            </Button>
-            <Button
-              to="/get-started"
-              variant="primary"
-              className="font-semibold px-5 shadow-md"
-            >
-              Get Started
-            </Button>
+            {isAuthenticated && user ? (
+              <>
+                <span className="font-semibold text-primary-blue mb-2">
+                  {user.email}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleLogout();
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  to="/login"
+                  variant="outline"
+                  className=""
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  to="/signup"
+                  variant="primary"
+                  className="font-semibold px-5 shadow-md"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Get Started
+                </Button>
+              </>
+            )}
           </div>
           {/* Hamburger Icon for mobile */}
           <button
@@ -175,22 +209,41 @@ const Header: React.FC = () => {
             For Employers
           </Link>
           <hr className="border-t-2 border-primary-blue" />
-          <Button
-            to="/signin"
-            variant="outline"
-            className=""
-            onClick={() => setMenuOpen(false)}
-          >
-            Sign In
-          </Button>
-          <Button
-            to="/get-started"
-            variant="primary"
-            className="font-semibold px-5 shadow-md"
-            onClick={() => setMenuOpen(false)}
-          >
-            Get Started
-          </Button>
+          {isAuthenticated && user ? (
+            <>
+              <span className="font-semibold text-primary-blue mb-2">
+                {user.email}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleLogout();
+                }}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                to="/login"
+                variant="outline"
+                className=""
+                onClick={() => setMenuOpen(false)}
+              >
+                Sign In
+              </Button>
+              <Button
+                to="/signup"
+                variant="primary"
+                className="font-semibold px-5 shadow-md"
+                onClick={() => setMenuOpen(false)}
+              >
+                Get Started
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>

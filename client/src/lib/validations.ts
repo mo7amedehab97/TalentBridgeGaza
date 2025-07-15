@@ -4,12 +4,16 @@ import { z } from 'zod';
 export const emailSchema = z
   .string()
   .min(1, 'Email is required')
-  .email('Please enter a valid email address');
+  .email('Please enter a valid email address')
+  .max(100, 'Email must be less than 100 characters')
+  .transform(val => val.trim().toLowerCase());
 
 export const passwordSchema = z
   .string()
+  .min(1, 'Password is required')
   .min(8, 'Password must be at least 8 characters')
-  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number');
+  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number')
+  .max(255, 'Password must be less than 255 characters');
 
 export const phoneSchema = z
   .string()
@@ -22,18 +26,35 @@ export const urlSchema = z
   .optional()
   .or(z.literal(''));
 
+export const nameSchema = z
+  .string()
+  .min(1, 'Name is required')
+  .min(2, 'Name must be at least 2 characters')
+  .max(50, 'Name must be less than 50 characters')
+  .regex(/^[a-zA-Z\s]+$/, 'Name can only contain letters and spaces')
+  .transform(val => val.trim());
+
+export const phoneNumberSchema = z
+  .string()
+  .min(1, 'Phone number is required')
+  .transform(val => val.replace(/\s/g, ''))
+  .refine(val => val.length >= 10, 'Phone number must be at least 10 characters')
+  .refine(val => val.length <= 20, 'Phone number must be less than 20 characters')
+  .refine(val => /^[\+]?[1-9][\d]{0,15}$/.test(val), 'Please enter a valid phone number');
+
+export const roleSchema = z.enum(['ADMIN', 'CONTRACTOR', 'CLIENT', 'COMPANY'], {
+  required_error: 'Role is required',
+  invalid_type_error: 'Invalid role value'
+});
+
 // User registration schema
 export const userRegistrationSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(1, 'Last name is required').min(2, 'Last name must be at least 2 characters'),
+  firstName: nameSchema,
+  lastName: nameSchema,
   email: emailSchema,
+  phoneNumber: phoneNumberSchema,
   password: passwordSchema,
-  confirmPassword: z.string().min(1, 'Please confirm your password'),
-  phone: phoneSchema,
-  agreeToTerms: z.boolean().refine((val) => val === true, 'You must agree to the terms and conditions'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
+  role: roleSchema.default('CONTRACTOR'),
 });
 
 // User login schema
