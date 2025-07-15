@@ -21,11 +21,18 @@ export async function POST(req: NextRequest) {
       { withCredentials: true }
     );
     return NextResponse.json(response.data, { status: response.status });
-  } catch (error: any) {
-    const message = error.response?.data?.message || error.message || "Registration failed";
+  } catch (error: unknown) {
+    let message = "Registration failed";
+    let status = 500;
+    if (axios.isAxiosError(error)) {
+      message = error.response?.data?.message || error.message || message;
+      status = error.response?.status || status;
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
     return NextResponse.json(
       { success: false, message },
-      { status: error.response?.status || 500 }
+      { status }
     );
   }
 } 

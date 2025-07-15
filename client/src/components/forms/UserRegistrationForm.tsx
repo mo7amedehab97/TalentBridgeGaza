@@ -1,11 +1,7 @@
 "use client";
 
 import React from "react";
-import { Form, Input, Checkbox, Button, Alert } from "../ui";
-import {
-  userRegistrationSchema,
-  UserRegistrationForm as UserRegistrationFormType,
-} from "../../lib/validations";
+import { Form, Input, Button, Alert } from "../ui";
 
 interface UserRegistrationFormProps {
   onSubmit: (data: {
@@ -25,10 +21,6 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
   isLoading = false,
   error,
 }) => {
-  const handleSubmit = (data: UserRegistrationFormType) => {
-    onSubmit(data);
-  };
-
   return (
     <div className="max-w-md mx-auto">
       <h2 className="text-2xl font-semibold mb-6 text-center">

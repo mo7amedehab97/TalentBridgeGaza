@@ -11,7 +11,6 @@ interface ButtonProps {
   to?: string;
 }
 
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 export const Button: React.FC<ButtonProps> = (props) => {
   const {
     children,

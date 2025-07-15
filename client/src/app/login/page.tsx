@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Form, Input, Button } from "@/components/ui";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Session } from "next-auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function LoginPage() {
     });
     if (result?.ok) {
       const session = await getSession();
-      const userRole = session?.user && (session.user as any).role;
+      const userRole = (session?.user as Session["user"])?.role;
       if (userRole === "ADMIN") router.replace("/admin");
       else if (userRole === "CONTRACTOR") router.replace("/moderator");
       else if (userRole === "CLIENT") router.replace("/talent");
@@ -95,7 +96,7 @@ export default function LoginPage() {
           Log In With Your Google Account
         </Button>
         <div className="text-center mt-6 text-sm text-text-muted">
-          I don't have an account yet.{" "}
+          I don&apos;t have an account yet.{" "}
           <Link
             href="/signup"
             className="text-primary-blue hover:text-primary-blue-hover"

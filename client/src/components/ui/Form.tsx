@@ -6,7 +6,6 @@ import {
   SubmitHandler,
   DefaultValues,
 } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 interface FormProps<T extends z.ZodTypeAny> {

@@ -1,6 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import type { RootState } from '@/store';
+
+// Define the Talent type based on your API response
+export type Talent = {
+  id: number;
+  name: string;
+  // Add other fields as needed
+};
 
 // Generic fetch thunk template
 export function createFetchThunk<T>(name: string, url: string) {
@@ -10,19 +16,22 @@ export function createFetchThunk<T>(name: string, url: string) {
       try {
         const response = await axios.get(url);
         return response.data;
-      } catch (err: any) {
-        return rejectWithValue(err.response?.data || `Failed to fetch ${name}`);
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+          return rejectWithValue(err.response?.data || `Failed to fetch ${name}`);
+        }
+        return rejectWithValue(`Failed to fetch ${name}`);
       }
     }
   );
 }
 
 // Example: talents fetch thunk
-export const fetchTalents = createFetchThunk<any[]>('talents', '/api/talents');
+export const fetchTalents = createFetchThunk<Talent[]>('talents', '/api/talents');
 
 const talentsSlice = createSlice({
   name: 'talents',
-  initialState: { talents: [], loading: false, error: null as string | null },
+  initialState: { talents: [] as Talent[], loading: false, error: null as string | null },
   reducers: {},
   extraReducers: (builder) => {
     builder

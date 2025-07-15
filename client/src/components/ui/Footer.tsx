@@ -185,7 +185,7 @@ const Footer: React.FC = () => {
             {isAuthenticated && user ? (
               <>
                 <span className="font-semibold text-primary-blue mr-2">
-                  {user.name || user.email}
+                  {user.email}
                 </span>
                 <Button variant="destructive" onClick={handleLogout}>
                   Logout

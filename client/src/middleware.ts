@@ -13,18 +13,7 @@ const userRoutePrefix = '/talent';
 
 const publicRoutes = ['/login', '/signup', '/', '/pricing', '/contact', '/about', '/terms', '/privacy', '/faq'];
 
-function getAllowedRoutePrefix(role: string | undefined) {
-  switch (role) {
-    case 'admin':
-      return adminRoutePrefix;
-    case 'moderator':
-      return moderatorRoutePrefix;
-    case 'user':
-      return userRoutePrefix;
-    default:
-      return undefined;
-  }
-}
+
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -32,7 +21,6 @@ export async function middleware(req: NextRequest) {
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const role = token?.role as string | undefined;
-  const allowedRoutePrefix = getAllowedRoutePrefix(role);
   const isPublicRoute = publicRoutes.includes(path);
 
   console.log(

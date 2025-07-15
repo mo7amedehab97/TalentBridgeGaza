@@ -92,7 +92,7 @@ const Header: React.FC = () => {
             {isAuthenticated && user ? (
               <>
                 <span className="font-semibold text-primary-blue mb-2">
-                  {user.name || user.email}
+                  {user.email}
                 </span>
                 <Button
                   variant="outline"
@@ -212,7 +212,7 @@ const Header: React.FC = () => {
           {isAuthenticated && user ? (
             <>
               <span className="font-semibold text-primary-blue mb-2">
-                {user.name || user.email}
+                {user.email}
               </span>
               <Button
                 variant="outline"

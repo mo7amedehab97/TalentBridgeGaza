@@ -1,14 +1,21 @@
 "use client";
 import React, { useState } from "react";
+import type { UserData } from "@/features/auth/authSlice";
 import Image from "next/image";
 import { UserRegistrationForm } from "@/components/forms/UserRegistrationForm";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useRouter } from "next/navigation";
 import { useSession, signIn, getSession } from "next-auth/react";
-import { UserWithRole } from "@/types/user";
 import { signUpThunk } from "@/features/auth/authSlice";
 
-const plans = [
+type Plan = {
+  key: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+};
+
+const plans: Plan[] = [
   {
     key: "CONTRACTOR",
     title: "Contractor",
@@ -49,39 +56,41 @@ const plans = [
 
 export default function SignupPage() {
   const [step, setStep] = useState(1);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<
+    "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY" | null
+  >(null);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);
   const { data: session, status } = useSession();
-  console.log(session, "SIMPLE1111");
 
   React.useEffect(() => {
     // Remove auto-redirect here, now handled in handleSignup
   }, [status, session, router]);
 
-  const handleSignup = async (data: any) => {
+  const handleSignup = async (data: UserData) => {
     setError(null);
-    const result = await dispatch<any>(
-      signUpThunk({ ...data, role: selectedPlan })
+    const result = await dispatch(
+      signUpThunk({ ...data, role: selectedPlan! })
     );
-    if (result.success) {
+    if ((result as { success?: boolean }).success) {
       const signInResult = await signIn("credentials", {
         redirect: false,
-        email: data.email,
-        password: data.password,
+        email: data.email as string,
+        password: data.password as string,
       });
       if (signInResult?.ok) {
         // Wait for session to update and get the user role
         const session = await getSession();
-        const userRole = session?.user && (session.user as any).role;
+        const userRole =
+          session?.user && (session.user as { role?: string }).role;
         if (userRole === "ADMIN") router.replace("/admin");
         else if (userRole === "CONTRACTOR") router.replace("/moderator");
         else if (userRole === "CLIENT") router.replace("/talent");
         else router.replace("/");
       }
     } else {
-      setError(result.message);
+      setError((result as { message?: string }).message || "");
     }
   };
 
@@ -95,11 +104,15 @@ export default function SignupPage() {
               Please choose the account that suits you
             </h1>
             <div className="space-y-4 mb-8">
-              {plans.map((plan) => (
+              {plans.map((plan: Plan) => (
                 <button
                   key={plan.key}
                   type="button"
-                  onClick={() => setSelectedPlan(plan.key)}
+                  onClick={() =>
+                    setSelectedPlan(
+                      plan.key as "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY"
+                    )
+                  }
                   className={`w-full flex items-center gap-4 p-4 border rounded-lg transition-all ${
                     selectedPlan === plan.key
                       ? "border-primary-blue bg-blue-50"
