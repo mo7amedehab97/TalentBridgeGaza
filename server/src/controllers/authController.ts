@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User, { Role } from '../models/user';
+import User from '../Database/models/user';
 import UserValidation from '../utils/validation';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secrerntnffksmdfakdsmakfsakf222';
@@ -11,7 +11,7 @@ const JWT_EXPIRES_IN = '7d';
 export const signup = async (req: Request, res: Response) => {
   try {
     // Input already validated by middleware
-    const { firstName, lastName, email, phoneNumber, password, role } = req.body;
+    const { firstName, lastName, email, phoneNumber, password, roleId } = req.body;
 
     // Check if user already exists
     const existing = await User.findOne({ where: { email } });
@@ -29,12 +29,12 @@ export const signup = async (req: Request, res: Response) => {
       email,
       phoneNumber,
       password: hashedPassword,
-      role: role || Role.CONTRACTOR
+      roleId
     });
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.roleId },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
@@ -48,7 +48,7 @@ export const signup = async (req: Request, res: Response) => {
         lastName: user.lastName,
         email: user.email,
         phoneNumber: user.phoneNumber,
-        role: user.role
+        roleId: user.roleId
       },
       token
     });
@@ -77,7 +77,7 @@ export const signin = async (req: Request, res: Response) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.roleId },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }
     );
@@ -91,7 +91,7 @@ export const signin = async (req: Request, res: Response) => {
         lastName: user.lastName,
         email: user.email,
         phoneNumber: user.phoneNumber,
-        role: user.role
+        roleId: user.roleId
       },
       token
     });

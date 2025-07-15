@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { Role } from '../models/user';
 
 export class ValidationError extends Error {
   constructor(message: string) {
@@ -39,11 +38,12 @@ export const nameSchema = z
   .regex(/^[a-zA-Z\s]+$/, 'Name can only contain letters and spaces')
   .transform(val => val.trim());
 
-export const roleSchema = z
-  .enum(['ADMIN', 'CONTRACTOR', 'CLIENT', 'COMPANY'], {
-    errorMap: () => ({ message: 'Invalid role value' })
+  export const roleIdSchema = z.number()
+  .int()
+  .refine(val => [1, 2, 3, 4].includes(val), {
+    message: 'Invalid roleId value',
   });
-
+  
 // User validation schemas
 export const userRegistrationSchema = z.object({
   firstName: nameSchema,
@@ -51,7 +51,7 @@ export const userRegistrationSchema = z.object({
   email: emailSchema,
   phoneNumber: phoneNumberSchema,
   password: passwordSchema,
-  role: roleSchema.default('CONTRACTOR')
+  role: roleIdSchema.default(2)
 });
 
 export const userUpdateSchema = z.object({
@@ -60,7 +60,7 @@ export const userUpdateSchema = z.object({
   email: emailSchema.optional(),
   phoneNumber: phoneNumberSchema.optional(),
   password: passwordSchema.optional(),
-  role: roleSchema.optional()
+  roleId: roleIdSchema.optional()
 }).refine(data => Object.keys(data).length > 0, {
   message: 'At least one field must be provided for update'
 });
@@ -71,7 +71,7 @@ export const userLoginSchema = z.object({
 });
 
 export const roleValidationSchema = z.object({
-  role: roleSchema
+  roleId: roleIdSchema
 });
 
 export class UserValidation {
@@ -151,11 +151,11 @@ export class UserValidation {
   }
 
   /**
-   * Validates role using Zod
+   * Validates roleId using Zod
    */
-  static validateRole(role: string): { success: boolean; error?: string } {
+  static validateRole(roleId: number): { success: boolean; error?: string } {
     try {
-      roleSchema.parse(role);
+      roleIdSchema.parse(roleId);
       return { success: true };
     } catch (error) {
       if (error instanceof z.ZodError) {
