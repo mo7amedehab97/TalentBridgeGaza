@@ -2,7 +2,7 @@ import React from "react";
 
 interface ButtonProps {
   children: React.ReactNode;
-  variant?: "primary" | "secondary" | "destructive";
+  variant?: "primary" | "secondary" | "outline" | "destructive";
   size?: "sm" | "md" | "lg";
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
@@ -29,6 +29,8 @@ export const Button: React.FC<ButtonProps> = (props) => {
   const variantClasses = {
     primary:
       "bg-primary-blue text-white border-primary-blue hover:bg-primary-blue-hover hover:border-primary-blue-hover disabled:bg-disabled disabled:text-disabled-text disabled:border-disabled",
+    outline:
+      "bg-white text-primary-blue border-primary hover:bg-primary-blue-hover hover:border-primary-blue-hover hover:text-white disabled:bg-disabled disabled:text-disabled-text disabled:border-disabled",
     secondary:
       "bg-accent-green text-white border-accent-green hover:bg-accent-green-hover hover:border-accent-green-hover",
     destructive:

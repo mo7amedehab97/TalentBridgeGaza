@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Form, Input, Select, Textarea, Checkbox, Button, Alert } from "../ui";
 import {

@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   useForm,
@@ -9,7 +10,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 interface FormProps<T extends z.ZodTypeAny> {
-  schema: T;
   onSubmit: SubmitHandler<z.infer<T>>;
   children: React.ReactNode;
   defaultValues?: Partial<z.infer<T>>;
@@ -17,14 +17,12 @@ interface FormProps<T extends z.ZodTypeAny> {
 }
 
 export function Form<T extends z.ZodTypeAny>({
-  schema,
   onSubmit,
   children,
   defaultValues,
   className = "",
 }: FormProps<T>) {
   const methods = useForm<z.infer<T>>({
-    resolver: zodResolver(schema),
     defaultValues: defaultValues as DefaultValues<z.infer<T>>,
   });
 

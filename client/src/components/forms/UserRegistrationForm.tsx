@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Form, Input, Checkbox, Button, Alert } from "../ui";
 import {
@@ -6,7 +8,14 @@ import {
 } from "../../lib/validations";
 
 interface UserRegistrationFormProps {
-  onSubmit: (data: UserRegistrationFormType) => void;
+  onSubmit: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    phoneNumber: string;
+    role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+  }) => void;
   isLoading?: boolean;
   error?: string;
 }
@@ -28,21 +37,26 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
 
       {error && (
         <Alert type="error" className="mb-6">
-          {error}
+          {Array.isArray(error)
+            ? error.map((err, idx) => <div key={idx}>{err}</div>)
+            : error}
         </Alert>
       )}
 
       <Form
-        schema={userRegistrationSchema}
-        onSubmit={handleSubmit}
+        onSubmit={(data) => {
+          // Only send required fields to backend
+          const { firstName, lastName, email, password, phoneNumber, role } =
+            data;
+          onSubmit({ firstName, lastName, email, password, phoneNumber, role });
+        }}
         defaultValues={{
           firstName: "",
           lastName: "",
           email: "",
           password: "",
-          confirmPassword: "",
-          phone: "",
-          agreeToTerms: false,
+          phoneNumber: "",
+          role: "CONTRACTOR",
         }}
       >
         <div className="flex gap-4 mb-4">
@@ -70,7 +84,7 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
         />
 
         <Input
-          name="phone"
+          name="phoneNumber"
           label="Phone Number"
           type="tel"
           placeholder="Enter your phone number"
@@ -86,19 +100,7 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
           helpText="Must be at least 8 characters with uppercase, lowercase, and number"
         />
 
-        <Input
-          name="confirmPassword"
-          label="Confirm Password"
-          type="password"
-          placeholder="Confirm your password"
-          required
-        />
-
-        <Checkbox
-          name="agreeToTerms"
-          label="I agree to the Terms and Conditions and Privacy Policy"
-          required
-        />
+        {/* No confirmPassword or agreeToTerms fields, as per backend */}
 
         <Button
           type="submit"
