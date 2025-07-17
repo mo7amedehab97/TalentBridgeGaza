@@ -2,100 +2,89 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../Database/models/user';
-import UserValidation from '../utils/validation';
+import { findUserByEmail } from "../services/userService";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secrerntnffksmdfakdsmakfsakf222';
-const JWT_EXPIRES_IN = '7d';
 
-// Signup controller
-export const signup = async (req: Request, res: Response) => {
-  try {
-    // Input already validated by middleware
-    const { firstName, lastName, email, phoneNumber, password, roleId } = req.body;
+  export const signup = async (request: Request, response: Response) => {
+    try {
+      const { name, email, phoneNumber, password, roleId, gender } = request.body;
 
-    // Check if user already exists
-    const existing = await User.findOne({ where: { email } });
-    if (existing) {
-      return res.status(409).json({ success: false, message: 'Email already in use' });
+      const existing = await findUserByEmail(email);
+      if (existing) {
+        return response.status(409).json({ success: false, message: 'Email already in use' });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const user = await User.create({
+        name,
+        email,
+        phoneNumber,
+        password: hashedPassword,
+        roleId,
+        gender
+      });
+
+      const token = jwt.sign(
+        { id: user.id, email: user.email, roleId: user.roleId },
+        JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      response.cookie("userToken", token, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: process.env.NODE_ENV === 'production'
+      });
+
+      return response.status(201).json({
+        message: 'User registered successfully',
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          roleId: user.roleId
+        }});
+    } catch (error: any) {
+      return response.status(500).json({ message: error.message || 'Signup failed' });
     }
+  };
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const user = await User.create({
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      password: hashedPassword,
-      roleId
-    });
+  export const login = async (request: Request, response: Response) => {
+    try {
+      const { email, password } = request.body;
 
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.roleId },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
-    );
+      const user = await findUserByEmail(email);
+      if (!user) return response.status(401).json({ message: 'Invalid credentials' });
 
-    return res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      data: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        roleId: user.roleId
-      },
-      token
-    });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, message: error.message || 'Signup failed' });
-  }
-};
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) return response.status(401).json({ message: 'Invalid credentials' });
 
-// Signin controller
-export const signin = async (req: Request, res: Response) => {
-  try {
-    // Input already validated by middleware
-    const { email, password } = req.body;
+      const token = jwt.sign(
+        { id: user.id, email: user.email, roleId: user.roleId },
+        JWT_SECRET,
+        { expiresIn: "7d" }
+      );
 
-    // Find user
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      response.cookie("userToken", token, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: process.env.NODE_ENV === 'production'
+      });
+
+      return response.status(200).json({
+        message: 'User LogdIn successfully',
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          roleId: user.roleId,
+          phoneNumber: user.phoneNumber,
+          gender: user.gender
+        }});
+    } catch (error: any) {
+      return response.status(500).json({ message: error.message || 'LogIn failed' });
     }
-
-    // Compare password
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
-    }
-
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.roleId },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: 'Signin successful',
-      data: {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        roleId: user.roleId
-      },
-      token
-    });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, message: error.message || 'Signin failed' });
-  }
-}; 
+  };

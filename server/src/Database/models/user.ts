@@ -4,12 +4,12 @@ import IUser from '../../utils/types/IUser';
 
 class User extends Model<IUser> implements IUser {
   public id!: number;
-  public firstName!: string;
-  public lastName!: string;
+  public name!: string;
   public email!: string;
   public phoneNumber!: string;
   public password!: string;
   public roleId!: number;
+  public gender!: string;
 }
 
 User.init(
@@ -20,21 +20,12 @@ User.init(
       primaryKey: true,
       allowNull: false,
     },
-    firstName: {
-      type: DataTypes.STRING(50),
+    name: {
+      type: DataTypes.STRING(100),
       allowNull: false,
       validate: {
         notEmpty: {
-          msg: 'First name is required'
-        }
-      }
-    },
-    lastName: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Last name is required'
+          msg: 'name is required'
         }
       }
     },
@@ -63,6 +54,15 @@ User.init(
       validate: {
         notEmpty: {
           msg: 'Password is required'
+        }
+      }
+    },
+    gender: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: 'gender is required'
         }
       }
     },

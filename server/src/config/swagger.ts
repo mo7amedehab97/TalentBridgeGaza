@@ -10,11 +10,11 @@ const options: Options = {
     },
     servers: [
       {
-        url: 'http://localhost:5000', // Replace with your prod URL when ready
+        url: 'http://localhost:5000', //TODO: Replace with prod URL when deployment
       },
     ],
   },
-  apis: ['./src/routes/**/*.ts', './src/controllers/**/*.ts'], // Adjust these paths
+  apis: ['./src/routes/**/*.ts', './src/docs/*.ts'], // Adjust these paths
 };
 
 const swaggerSpec = swaggerJsdoc(options);

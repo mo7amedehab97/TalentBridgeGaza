@@ -7,10 +7,6 @@ import User from '../Database/models/user';
  */
 
 export async function findUserByEmail(email: string) {
-  return User.findOne({ where: { email } });
-}
-
-export async function userExists(email: string): Promise<boolean> {
-  const user = await findUserByEmail(email);
-  return !!user;
+  const user =  User.findOne({ where: { email } });
+  return user;
 }
