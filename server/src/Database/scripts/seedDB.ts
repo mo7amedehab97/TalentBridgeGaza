@@ -23,28 +23,28 @@ const seed = async () => {
 
     const users = await User.bulkCreate([
       {
-        firstName: 'Admin',
-        lastName: 'Rand',
+        name: 'Admin Rand',
         email: 'admin@admin.com',
         phoneNumber: '123456789',
         password: 'hashedpassword',
         roleId: 1, //admin
+        gender: "female"
       },
       {
-        firstName: 'Rand',
-        lastName: 'Sohail',
+        name: 'Rand Sohail Abu AlArraj',
         email: 'rand@company.com',
         phoneNumber: '0598836717',
         password: '123456',
         roleId: 2, // recruiter
+        gender: "female"
       },
       {
-        firstName: 'Mohammed',
-        lastName: 'Ehab',
+        name: 'Mohammed Ehab Helles',
         email: 'mohammed@dev.com',
         phoneNumber: '0598836717',
         password: '123456',
         roleId: 3, // talent
+        gender: "Male"
       },
     ]);
     const talents = await Talent.bulkCreate([
