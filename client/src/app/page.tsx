@@ -1,13 +1,9 @@
-import Header from "@/components/Header";
 import Banner from "@/components/Banner";
-import Footer from "@/components/ui/Footer";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <main className="min-h-screen">
-      <Header />
+    <main>
       <Banner />
-      <Footer />
     </main>
   );
 }

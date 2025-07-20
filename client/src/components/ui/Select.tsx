@@ -1,6 +1,6 @@
+"use client";
 import React from "react";
 import { useFormContext, Controller } from "react-hook-form";
-
 interface SelectOption {
   value: string;
   label: string;
