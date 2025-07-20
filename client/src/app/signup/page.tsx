@@ -1,11 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import type { UserData } from "@/features/auth/authSlice";
 import Image from "next/image";
 import { UserRegistrationForm } from "@/components/forms/UserRegistrationForm";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useRouter } from "next/navigation";
-import { useSession, signIn, getSession } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { signUpThunk } from "@/features/auth/authSlice";
 
 type Plan = {
@@ -62,16 +61,21 @@ export default function SignupPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);
-  const { data: session, status } = useSession();
 
-  React.useEffect(() => {
-    // Remove auto-redirect here, now handled in handleSignup
-  }, [status, session, router]);
-
-  const handleSignup = async (data: UserData) => {
+  const handleSignup = async (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    phoneNumber: string;
+    role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+  }) => {
     setError(null);
     const result = await dispatch(
-      signUpThunk({ ...data, role: selectedPlan! })
+      signUpThunk({
+        ...data,
+        role: selectedPlan!,
+      })
     );
     if ((result as { success?: boolean }).success) {
       const signInResult = await signIn("credentials", {

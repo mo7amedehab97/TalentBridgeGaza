@@ -1,7 +1,16 @@
-import { AuthOptions, Session, User } from "next-auth";
+import { AuthOptions, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios, { AxiosError } from "axios";
-import { JWT } from "next-auth/jwt";
+
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      role: string;
+    } & DefaultSession["user"];
+    accessToken?: string;
+  }
+}
 
 // API configuration
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -43,11 +52,11 @@ export const authOptions: AuthOptions = {
           
           return null;
         } catch (error) {
-          const axiosError = error as AxiosError;
-          if (axiosError.response?.data) {
-            throw new Error(axiosError.response.data.message || 'Authentication failed');
+          const axiosError = error as AxiosError<{ message?: string }>;
+          if (axiosError.response?.data?.message) {
+            throw new Error(axiosError.response.data.message);
           }
-          throw new Error('Unable to connect to the server');
+          throw new Error(axiosError.message || 'Authentication failed');
         }
       },
     }),
@@ -57,12 +66,12 @@ export const authOptions: AuthOptions = {
     maxAge: 7 * 24 * 60 * 60, // 7 days (matches backend JWT_EXPIRES_IN)
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       // Initial sign in
       if (user) {
-        token.accessToken = (user as any).accessToken;
-        token.role = (user as any).role;
-        token.id = (user as any).id;
+        token.accessToken = (user as { accessToken?: string }).accessToken;
+        token.role = (user as { role?: string }).role;
+        token.id = (user as { id?: string }).id;
       }
       return token;
     },

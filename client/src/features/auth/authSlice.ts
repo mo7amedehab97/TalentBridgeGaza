@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { signIn as nextAuthSignIn, signOut as nextAuthSignOut, SignInResponse } from 'next-auth/react';
+// User type is used in the SignInResponse type
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -35,11 +36,11 @@ export const signInThunk = createAsyncThunk(
   'auth/signIn',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const result = await nextAuthSignIn('credentials', {
+      const result = (await nextAuthSignIn('credentials', {
         redirect: false,
         email: credentials.email,
         password: credentials.password,
-      }) as SignInResponse & { accessToken?: string };
+      })) as SignInResponse & { accessToken?: string };
 
       if (result?.error) {
         throw new Error(result.error);
@@ -50,18 +51,25 @@ export const signInThunk = createAsyncThunk(
       }
 
       // Get user data from the API
-      const response = await axios.get(`${API_URL}/api/auth/me`, {
+      const response = await axios.get<{ data: UserData }>(`${API_URL}/api/auth/me`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${result.accessToken}`
         },
       });
 
+      if (!response.data?.data) {
+        throw new Error('Failed to fetch user data');
+      }
+
       return response.data.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || error.message || 'Sign in failed'
-      );
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : typeof error === 'object' && error !== null && 'message' in error
+          ? String(error.message)
+          : 'Sign in failed';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -70,13 +78,17 @@ export const signUpThunk = createAsyncThunk(
   'auth/signUp',
   async (userData: SignUpData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
+      const response = await axios.post<{ success: boolean; data: UserData }>(
         `${API_URL}/api/auth/signup`,
         userData,
         {
           headers: { 'Content-Type': 'application/json' },
         }
       );
+
+      if (!response.data?.success) {
+        throw new Error('Signup failed');
+      }
 
       if (response.data.success) {
         // Auto sign in after successful sign up
@@ -89,10 +101,13 @@ export const signUpThunk = createAsyncThunk(
       }
 
       return response.data.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || error.message || 'Sign up failed'
-      );
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : typeof error === 'object' && error !== null && 'message' in error
+          ? String(error.message)
+          : 'Sign up failed';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -103,8 +118,11 @@ export const signOutThunk = createAsyncThunk(
     try {
       await nextAuthSignOut({ redirect: false });
       return true;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Sign out failed');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Sign out failed';
+      return rejectWithValue(errorMessage);
     }
   }
 );
