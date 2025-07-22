@@ -30,14 +30,14 @@ export const authOptions: AuthOptions = {
 
         try {
           const response = await axios.post(
-            `${API_URL}/api/auth/signin`,
+            `${API_URL}/api/v1/auth/login`,
             {
               email: credentials.email,
               password: credentials.password,
             },
             {
               headers: { 'Content-Type': 'application/json' },
-              withCredentials: true,
+              withCredentials: false,
             }
           );
 
@@ -45,7 +45,10 @@ export const authOptions: AuthOptions = {
           
           if (data.success && data.data && data.token) {
             return {
-              ...data.data,
+              id: data.data.id,
+              name: data.data.name,
+              email: data.data.email,
+              role: data.data.role,
               accessToken: data.token,
             };
           }
@@ -64,6 +67,9 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 7 * 24 * 60 * 60, // 7 days (matches backend JWT_EXPIRES_IN)
+  },
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -89,7 +95,16 @@ export const authOptions: AuthOptions = {
   },
   pages: {
     signIn: "/login",
+    signOut: "/login",
     error: "/login",
+  },
+  events: {
+    async signOut() {
+      // Clear any client-side auth state
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('authState');
+      }
+    },
   },
   secret: process.env.NEXTAUTH_SECRET || 'your-secret-key',
   debug: process.env.NODE_ENV === 'development',

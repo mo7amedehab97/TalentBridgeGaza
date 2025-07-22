@@ -1,32 +1,50 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Form, Input, Button } from "@/components/ui";
-import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Session } from "next-auth";
+import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
+import { signInThunk } from "@/features/auth/authSlice";
+import { RootState } from "@/store";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [error, setError] = React.useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const { user, loading, error } = useAppSelector(
+    (state: RootState) => state.auth
+  );
+  const { showSuccess, showError } = useToast();
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      if (user.role === "ADMIN") router.replace("/admin");
+      else if (user.role === "CONTRACTOR") router.replace("/moderator");
+      else if (user.role === "CLIENT") router.replace("/talent");
+      else router.replace("/");
+    }
+  }, [user, router]);
 
   const handleSubmit = async (data: { email: string; password: string }) => {
-    setError(null);
-    const result = await signIn("credentials", {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
-    if (result?.ok) {
-      const session = await getSession();
-      const userRole = (session?.user as Session["user"])?.role;
-      if (userRole === "ADMIN") router.replace("/admin");
-      else if (userRole === "CONTRACTOR") router.replace("/moderator");
-      else if (userRole === "CLIENT") router.replace("/talent");
-      else router.replace("/");
-    } else {
-      setError(result?.error || "Login failed");
+    try {
+      const result = await dispatch(signInThunk(data));
+
+      if (signInThunk.fulfilled.match(result)) {
+        showSuccess("Login successful!");
+        // The redirect will be handled by the useEffect above
+        return;
+      }
+      if (signInThunk.rejected.match(result)) {
+        showError(
+          (result.payload as string) ||
+            "Login failed. Please check your credentials."
+        );
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      showError("An unexpected error occurred.");
     }
   };
 
@@ -50,8 +68,13 @@ export default function LoginPage() {
             placeholder="Password"
             required
           />
-          <Button type="submit" variant="primary" className="w-full mt-4 mb-2">
-            Log in
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-full mt-4 mb-2"
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Log in"}
           </Button>
         </Form>
         {error && <div className="text-red-500 mt-2">{error}</div>}

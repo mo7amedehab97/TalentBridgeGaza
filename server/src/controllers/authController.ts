@@ -4,7 +4,10 @@ import jwt from 'jsonwebtoken';
 import User from '../Database/models/user';
 import { findUserByEmail } from "../services/userService";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secrerntnffksmdfakdsmakfsakf222';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET is not defined in environment variables');
+}
 
   export const signup = async (request: Request, response: Response) => {
     try {
@@ -32,20 +35,19 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secrerntnffksmdfakdsmakfsakf222';
         { expiresIn: "7d" }
       );
 
-      response.cookie("userToken", token, {
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        secure: process.env.NODE_ENV === 'production'
-      });
-
       return response.status(201).json({
+        success: true,
         message: 'User registered successfully',
         data: {
           id: user.id,
           name: user.name,
           email: user.email,
-          roleId: user.roleId
-        }});
+          role: user.roleId,
+          phoneNumber: user.phoneNumber,
+          gender: user.gender
+        },
+        token
+      });
     } catch (error: any) {
       return response.status(500).json({ message: error.message || 'Signup failed' });
     }
@@ -68,22 +70,19 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secrerntnffksmdfakdsmakfsakf222';
         { expiresIn: "7d" }
       );
 
-      response.cookie("userToken", token, {
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-        secure: process.env.NODE_ENV === 'production'
-      });
-
       return response.status(200).json({
-        message: 'User LogdIn successfully',
+        success: true,
+        message: 'User logged in successfully',
         data: {
           id: user.id,
           name: user.name,
           email: user.email,
-          roleId: user.roleId,
+          role: user.roleId,
           phoneNumber: user.phoneNumber,
           gender: user.gender
-        }});
+        },
+        token
+      });
     } catch (error: any) {
       return response.status(500).json({ message: error.message || 'LogIn failed' });
     }
