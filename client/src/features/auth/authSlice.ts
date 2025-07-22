@@ -65,7 +65,7 @@ export const signInThunk = createAsyncThunk(
         email: session.user.email || '',
         phoneNumber: '', // Will be updated after fetching user profile
         role: (typeof session.user.role === "string" ? session.user.role.toUpperCase() : "CLIENT") as UserData['role'],
-        accessToken: (session as any).accessToken || ''
+        accessToken: (session as Session).accessToken || ''
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error 
@@ -143,7 +143,7 @@ export const signUpThunk = createAsyncThunk(
         email: session.user.email || '',
         phoneNumber: userData.phoneNumber,
         role: (typeof session.user.role === "string" ? session.user.role.toUpperCase() : "CLIENT") as UserData['role'],
-        accessToken: (session as any).accessToken || ''
+        accessToken: (session as Session).accessToken || ''
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error 

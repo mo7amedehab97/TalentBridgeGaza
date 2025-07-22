@@ -21,7 +21,6 @@ interface UserRegistrationFormProps {
 
 export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
   onSubmit,
-  onBack,
   role,
   isLoading = false,
   error,

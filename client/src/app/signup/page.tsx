@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { UserRegistrationForm } from "@/components/forms/UserRegistrationForm";
-import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { RootState } from "@/store";
@@ -127,11 +126,27 @@ export default function SignupPage() {
         showError(errorMessage);
         setError(errorMessage);
       }
-    } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        "An unexpected error occurred.";
+    } catch (err: unknown) {
+      let errorMessage: string;
+      if (
+        err &&
+        typeof err === "object" &&
+        "response" in err &&
+        err.response &&
+        typeof err.response === "object" &&
+        "data" in err.response &&
+        err.response.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        errorMessage =
+          (err.response as { data?: { message?: string } }).data?.message ||
+          "An unexpected error occurred.";
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      } else {
+        errorMessage = "An unexpected error occurred.";
+      }
       showError(errorMessage);
       setError(errorMessage);
     }
@@ -152,7 +167,15 @@ export default function SignupPage() {
                 {plans.map((plan) => (
                   <div
                     key={plan.key}
-                    onClick={() => setSelectedPlan(plan.key as any)}
+                    onClick={() =>
+                      setSelectedPlan(
+                        plan.key as
+                          | "CONTRACTOR"
+                          | "ADMIN"
+                          | "CLIENT"
+                          | "COMPANY"
+                      )
+                    }
                     className={`relative rounded-lg border bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-indigo-500 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 cursor-pointer ${
                       selectedPlan === plan.key
                         ? "border-indigo-500 ring-2 ring-indigo-500"
