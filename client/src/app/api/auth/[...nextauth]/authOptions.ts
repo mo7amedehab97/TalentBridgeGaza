@@ -6,7 +6,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      role: string;
+      roleId: number;
     } & DefaultSession["user"];
     accessToken?: string;
   }
@@ -48,7 +48,7 @@ export const authOptions: AuthOptions = {
               id: data.data.id,
               name: data.data.name,
               email: data.data.email,
-              role: data.data.role,
+              roleId: data.data.roleId,
               accessToken: data.token,
             };
           }
@@ -76,7 +76,7 @@ export const authOptions: AuthOptions = {
       // Initial sign in
       if (user) {
         token.accessToken = (user as { accessToken?: string }).accessToken;
-        token.role = (user as { role?: string }).role;
+        token.roleId = (user as { roleId?: number }).roleId;
         token.id = (user as { id?: string }).id;
       }
       return token;
@@ -86,7 +86,7 @@ export const authOptions: AuthOptions = {
         session.user = {
           ...session.user,
           id: token.id as string,
-          role: token.role as string,
+          roleId: token.roleId as number,
         };
         session.accessToken = token.accessToken as string;
       }

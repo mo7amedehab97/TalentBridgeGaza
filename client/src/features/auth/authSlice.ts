@@ -12,7 +12,7 @@ export interface UserData {
   lastName: string;
   email: string;
   phoneNumber: string;
-  role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+  roleId: number;
   accessToken: string;
   name?: string;
   gender?: string;
@@ -31,7 +31,7 @@ export interface SignUpData {
   password: string;
   phoneNumber: string;
   gender: string;
-  role?: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+  role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
 }
 
 // Async Thunks
@@ -64,7 +64,7 @@ export const signInThunk = createAsyncThunk(
         lastName: session.user.name?.split(' ')[1] || '',
         email: session.user.email || '',
         phoneNumber: '', // Will be updated after fetching user profile
-        role: (typeof session.user.role === "string" ? session.user.role.toUpperCase() : "CLIENT") as UserData['role'],
+        roleId: session.user.roleId,
         accessToken: (session as Session).accessToken || ''
       };
     } catch (error: unknown) {
@@ -142,7 +142,7 @@ export const signUpThunk = createAsyncThunk(
         lastName: session.user.name?.split(' ')[1] || '',
         email: session.user.email || '',
         phoneNumber: userData.phoneNumber,
-        role: (typeof session.user.role === "string" ? session.user.role.toUpperCase() : "CLIENT") as UserData['role'],
+        roleId: session.user.roleId,
         accessToken: (session as Session).accessToken || ''
       };
     } catch (error: unknown) {

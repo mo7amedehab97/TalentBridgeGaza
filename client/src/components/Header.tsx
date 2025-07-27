@@ -1,56 +1,54 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Button from "./Button";
 import Container from "./Container";
 import { useSession, signOut } from "next-auth/react";
 
 const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const { data: session, status } = useSession();
   const user = session?.user;
   const isAuthenticated = status === "authenticated";
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
     signOut({ callbackUrl: "/login" });
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setUserDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   console.log(user, "user");
   return (
-    <header className="w-full bg-white shadow-sm fixed top-0 left-0 z-40">
+    <header className="w-full bg-white shadow-sm staic top-0 left-0 z-40">
       <Container>
         <div className="flex items-center justify-between py-3">
           <div className="flex items-center gap-2">
-            <svg
-              width="36"
-              height="36"
-              viewBox="0 0 36 36"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+            <Image
+              src="/images/logo.svg"
+              alt="TalentBridge Logo"
+              width={36}
+              height={36}
               className="mr-2"
-            >
-              <circle
-                cx="10"
-                cy="18"
-                r="6"
-                fill="currentColor"
-                className="text-primary-blue"
-              />
-              <circle
-                cx="26"
-                cy="18"
-                r="6"
-                fill="currentColor"
-                className="text-accent-green"
-              />
-              <circle
-                cx="18"
-                cy="10"
-                r="4"
-                fill="currentColor"
-                className="text-primary-blue"
-              />
-            </svg>
+            />
             <span className="text-2xl font-bold select-none">
               <span className="text-dark-gray">Talent</span>
               <span className="text-primary-blue">Bridge</span>
@@ -90,20 +88,46 @@ const Header: React.FC = () => {
           </nav>
           <div className="hidden md:flex items-center gap-4">
             {isAuthenticated && user ? (
-              <>
-                <span className="font-semibold text-primary-blue mb-2">
-                  {user.email}
-                </span>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    handleLogout();
-                  }}
-                >
-                  Logout
-                </Button>
-              </>
+              <div className="relative" ref={dropdownRef}>
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-primary-blue">{user.name}</p>
+                  <button
+                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    className="flex items-center justify-center"
+                  >
+                    <Image
+                      src="/images/user.svg"
+                      alt="User Icon"
+                      width={32}
+                      height={32}
+                    />
+                  </button>
+                </div>
+                {/* User Dropdown Menu */}
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                    <div className="py-1">
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setUserDropdownOpen(false)}
+                      >
+                        Profile
+                      </Link>
+                      <hr className="border-t border-gray-200 my-1" />
+                      <button
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          handleLogout();
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <>
                 <Button

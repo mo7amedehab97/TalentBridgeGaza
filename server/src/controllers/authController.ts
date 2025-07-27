@@ -42,7 +42,7 @@ if (!JWT_SECRET) {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.roleId,
+          roleId: user.roleId,
           phoneNumber: user.phoneNumber,
           gender: user.gender
         },
@@ -77,7 +77,7 @@ if (!JWT_SECRET) {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.roleId,
+          roleId: user.roleId,
           phoneNumber: user.phoneNumber,
           gender: user.gender
         },

@@ -1,0 +1,27 @@
+<svg
+              width="36"
+              height="36"
+              viewBox="0 0 36 36"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="mr-2"
+            >
+              <circle
+                cx="10"
+                cy="18"
+                r="6"
+                fill="#4A90E2"
+              />
+              <circle
+                cx="26"
+                cy="18"
+                r="6"
+                fill="#A7D129"
+              />
+              <circle
+                cx="18"
+                cy="10"
+                r="4"
+                fill="#4A90E2"
+              />
+            </svg>

@@ -11,17 +11,17 @@ interface UserRegistrationFormProps {
     password: string;
     phoneNumber: string;
     gender: string;
-    role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+    roleId: number;
   }) => void;
   onBack: () => void;
-  role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+  roleId: number;
   isLoading?: boolean;
   error?: string | null;
 }
 
 export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
   onSubmit,
-  role,
+  roleId,
   isLoading = false,
   error,
 }) => {
@@ -38,15 +38,8 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
       <Form
         onSubmit={(data) => {
           // Only send required fields to backend
-          const {
-            firstName,
-            lastName,
-            email,
-            password,
-            phoneNumber,
-            gender,
-            role,
-          } = data;
+          const { firstName, lastName, email, password, phoneNumber, gender } =
+            data;
           onSubmit({
             firstName,
             lastName,
@@ -54,7 +47,7 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
             password,
             phoneNumber,
             gender,
-            role,
+            roleId,
           });
         }}
         defaultValues={{
@@ -64,7 +57,7 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
           password: "",
           phoneNumber: "",
           gender: "",
-          role,
+          roleId,
         }}
       >
         <div className="flex gap-4 mb-4 mt-12">

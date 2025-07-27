@@ -20,8 +20,8 @@ type Plan = {
 const plans: Plan[] = [
   {
     key: "CONTRACTOR",
-    title: "Contractor",
-    description: "I work as a contractor or remote employee.",
+    title: "Talent",
+    description: "I want to offer my services.",
     icon: (
       <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
         <rect width="32" height="32" rx="8" fill="#E6F0FA" />
@@ -56,6 +56,14 @@ const plans: Plan[] = [
   },
 ];
 
+// Map role to corresponding roleId
+const roleToIdMap = {
+  CONTRACTOR: 3, // talent
+  CLIENT: 2, // client
+  ADMIN: 1, // admin
+  COMPANY: 2, // company maps to client role for now
+} as const;
+
 export default function SignupPage() {
   const [step, setStep] = useState(1);
   const [selectedPlan, setSelectedPlan] = useState<
@@ -70,9 +78,9 @@ export default function SignupPage() {
   // Redirect if user is already logged in
   React.useEffect(() => {
     if (user) {
-      if (user.role === "ADMIN") router.replace("/admin");
-      else if (user.role === "CONTRACTOR") router.replace("/moderator");
-      else if (user.role === "CLIENT") router.replace("/talent");
+      if (user.roleId === 1) router.replace("/admin");
+      else if (user.roleId === 3) router.replace("/moderator");
+      else if (user.roleId === 2) router.replace("/talent");
       else router.replace("/");
     }
   }, [user, router]);
@@ -84,7 +92,7 @@ export default function SignupPage() {
     password: string;
     phoneNumber: string;
     gender: string;
-    role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+    roleId: number;
   }) => {
     if (!selectedPlan) {
       setError("Please select an account type");
@@ -210,7 +218,7 @@ export default function SignupPage() {
             <UserRegistrationForm
               onSubmit={handleSignup}
               onBack={() => setStep(1)}
-              role={selectedPlan!}
+              roleId={selectedPlan ? roleToIdMap[selectedPlan] : 2}
               error={error}
               isLoading={loading}
             />

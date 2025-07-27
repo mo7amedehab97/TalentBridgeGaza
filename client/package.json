@@ -12,6 +12,7 @@
     "@hookform/resolvers": "^5.1.1",
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.10.0",
+    "framer-motion": "^12.23.9",
     "next": "15.3.5",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",

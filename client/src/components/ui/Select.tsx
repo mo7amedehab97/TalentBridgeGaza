@@ -15,7 +15,8 @@ interface SelectProps {
   disabled?: boolean;
   helpText?: string;
   className?: string;
-}
+  defaultValue?: string;
+  }
 
 export const Select: React.FC<SelectProps> = ({
   name,
@@ -26,6 +27,7 @@ export const Select: React.FC<SelectProps> = ({
   disabled = false,
   helpText,
   className = "",
+  defaultValue,
 }) => {
   const {
     control,
@@ -56,6 +58,7 @@ export const Select: React.FC<SelectProps> = ({
             className={`w-full px-3 py-3 border border-border-medium rounded-md bg-bg-secondary text-text-primary text-sm transition-all duration-150 ease-in-out focus:outline-none focus:border-border-focus focus:shadow-[0_0_0_3px_rgba(74,144,226,0.1)] disabled:bg-bg-primary disabled:text-text-muted disabled:cursor-not-allowed ${
               error ? "border-alert-red" : ""
             }`}
+            defaultValue={defaultValue}
           >
             {placeholder && (
               <option value="" disabled>

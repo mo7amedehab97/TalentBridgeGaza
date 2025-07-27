@@ -20,9 +20,9 @@ export default function LoginPage() {
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
-      if (user.role === "ADMIN") router.replace("/admin");
-      else if (user.role === "CONTRACTOR") router.replace("/moderator");
-      else if (user.role === "CLIENT") router.replace("/talent");
+      if (user.roleId === 1) router.replace("/admin");
+      else if (user.roleId === 3) router.replace("/moderator");
+      else if (user.roleId === 2) router.replace("/talent");
       else router.replace("/");
     }
   }, [user, router]);
