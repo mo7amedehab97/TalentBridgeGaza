@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { signIn as nextAuthSignIn, signOut as nextAuthSignOut, SignInResponse } from 'next-auth/react';
-// User type is used in the SignInResponse type
+import { signIn as nextAuthSignIn, signOut as nextAuthSignOut, getSession } from 'next-auth/react';
+import type { Session } from 'next-auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -12,8 +12,10 @@ export interface UserData {
   lastName: string;
   email: string;
   phoneNumber: string;
-  role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
-  accessToken?: string;
+  roleId: number;
+  accessToken: string;
+  name?: string;
+  gender?: string;
 }
 
 export interface AuthState {
@@ -28,7 +30,8 @@ export interface SignUpData {
   email: string;
   password: string;
   phoneNumber: string;
-  role?: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+  gender: string;
+  role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
 }
 
 // Async Thunks
@@ -36,33 +39,34 @@ export const signInThunk = createAsyncThunk(
   'auth/signIn',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const result = (await nextAuthSignIn('credentials', {
+      const result = await nextAuthSignIn('credentials', {
         redirect: false,
         email: credentials.email,
         password: credentials.password,
-      })) as SignInResponse & { accessToken?: string };
+      });
 
       if (result?.error) {
         throw new Error(result.error);
       }
 
-      if (!result?.accessToken) {
-        throw new Error('No access token received');
+      // Get the session which now contains our user data
+      const session = await getSession();
+      
+      if (!session?.user) {
+        throw new Error('Failed to get user session');
       }
 
-      // Get user data from the API
-      const response = await axios.get<{ data: UserData }>(`${API_URL}/api/auth/me`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${result.accessToken}`
-        },
-      });
-
-      if (!response.data?.data) {
-        throw new Error('Failed to fetch user data');
-      }
-
-      return response.data.data;
+      // For now, we'll use empty strings for missing fields
+      // These will be updated after the user profile is fetched
+      return {
+        id: session.user.id || '',
+        firstName: session.user.name?.split(' ')[0] || '',
+        lastName: session.user.name?.split(' ')[1] || '',
+        email: session.user.email || '',
+        phoneNumber: '', // Will be updated after fetching user profile
+        roleId: session.user.roleId,
+        accessToken: (session as Session).accessToken || ''
+      };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error 
         ? error.message 
@@ -78,29 +82,69 @@ export const signUpThunk = createAsyncThunk(
   'auth/signUp',
   async (userData: SignUpData, { rejectWithValue }) => {
     try {
-      const response = await axios.post<{ success: boolean; data: UserData }>(
+      // Map role to corresponding roleId
+      const roleToIdMap = {
+        'CONTRACTOR': 3,  // talent
+        'CLIENT': 2,      // client
+        'ADMIN': 1,       // admin
+        'COMPANY': 2      // company maps to client role for now
+      } as const;
+      
+      const roleId = roleToIdMap[userData.role as keyof typeof roleToIdMap] || 2; // Default to client
+
+      const backendUserData = {
+        name: `${userData.firstName} ${userData.lastName}`.trim(),
+        email: userData.email.trim(),
+        password: userData.password,
+        phoneNumber: userData.phoneNumber.trim(),
+        gender: userData.gender || 'Not specified',
+        roleId: roleId
+      };
+
+      const response = await axios.post<{ 
+        success: boolean; 
+        data: UserData;
+        token: string;
+        message: string;
+      }>(
         `${API_URL}/api/auth/signup`,
-        userData,
+        backendUserData,
         {
           headers: { 'Content-Type': 'application/json' },
         }
       );
 
       if (!response.data?.success) {
-        throw new Error('Signup failed');
+        throw new Error(response.data?.message || 'Signup failed');
       }
 
-      if (response.data.success) {
-        // Auto sign in after successful sign up
-        const { email, password } = userData;
-        await nextAuthSignIn('credentials', {
-          redirect: false,
-          email,
-          password,
-        });
+      // Auto sign in after successful sign up
+      const signInResult = await nextAuthSignIn('credentials', {
+        redirect: false,
+        email: userData.email,
+        password: userData.password,
+      });
+
+      if (signInResult?.error) {
+        throw new Error(signInResult.error);
       }
 
-      return response.data.data;
+      // Get session after successful sign in
+      const session = await getSession();
+      
+      if (!session?.user) {
+        throw new Error('Failed to get user session after signup');
+      }
+
+      return {
+        id: session.user.id || '',
+        firstName: session.user.name?.split(' ')[0] || '',
+        lastName: session.user.name?.split(' ')[1] || '',
+        email: session.user.email || '',
+        phoneNumber: userData.phoneNumber,
+        roleId: session.user.roleId,
+        accessToken: (session as Session).accessToken || ''
+      };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error 
         ? error.message 
@@ -147,32 +191,51 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Sign In
-    builder.addCase(signInThunk.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(signInThunk.fulfilled, (state, action) => {
-      state.loading = false;
-      state.user = action.payload;
-    });
-    builder.addCase(signInThunk.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
-
-    // Sign Up
-    builder.addCase(signUpThunk.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-    builder.addCase(signUpThunk.fulfilled, (state) => {
-      state.loading = false;
-    });
-    builder.addCase(signUpThunk.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
+    builder
+      .addCase(signInThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(signInThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+        // Store user data in localStorage for persistence
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('authState', JSON.stringify({
+            user: action.payload,
+            loading: false,
+            error: null
+          }));
+        }
+      })
+      .addCase(signInThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.user = null;
+      })
+      .addCase(signUpThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(signUpThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+        // Store user data in localStorage for persistence
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('authState', JSON.stringify({
+            user: action.payload,
+            loading: false,
+            error: null
+          }));
+        }
+      })
+      .addCase(signUpThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.user = null;
+      });
 
     // Sign Out
     builder.addCase(signOutThunk.fulfilled, (state) => {

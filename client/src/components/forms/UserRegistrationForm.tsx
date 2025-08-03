@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Form, Input, Button, Alert } from "../ui";
+import { Form, Input, Button, Alert, Select } from "../ui";
 
 interface UserRegistrationFormProps {
   onSubmit: (data: {
@@ -10,23 +10,23 @@ interface UserRegistrationFormProps {
     email: string;
     password: string;
     phoneNumber: string;
-    role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+    gender: string;
+    roleId: number;
   }) => void;
+  onBack: () => void;
+  roleId: number;
   isLoading?: boolean;
-  error?: string;
+  error?: string | null;
 }
 
 export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
   onSubmit,
+  roleId,
   isLoading = false,
   error,
 }) => {
   return (
     <div className="max-w-md mx-auto">
-      <h2 className="text-2xl font-semibold mb-6 text-center">
-        Create Your Account
-      </h2>
-
       {error && (
         <Alert type="error" className="mb-6">
           {Array.isArray(error)
@@ -38,9 +38,17 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
       <Form
         onSubmit={(data) => {
           // Only send required fields to backend
-          const { firstName, lastName, email, password, phoneNumber, role } =
+          const { firstName, lastName, email, password, phoneNumber, gender } =
             data;
-          onSubmit({ firstName, lastName, email, password, phoneNumber, role });
+          onSubmit({
+            firstName,
+            lastName,
+            email,
+            password,
+            phoneNumber,
+            gender,
+            roleId,
+          });
         }}
         defaultValues={{
           firstName: "",
@@ -48,10 +56,11 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
           email: "",
           password: "",
           phoneNumber: "",
-          role: "CONTRACTOR",
+          gender: "",
+          roleId,
         }}
       >
-        <div className="flex gap-4 mb-4">
+        <div className="flex gap-4 mb-4 mt-12">
           <Input
             name="firstName"
             label="First Name"
@@ -80,6 +89,16 @@ export const UserRegistrationForm: React.FC<UserRegistrationFormProps> = ({
           label="Phone Number"
           type="tel"
           placeholder="Enter your phone number"
+          required
+        />
+
+        <Select
+          name="gender"
+          label="Gender"
+          options={[
+            { value: "Male", label: "Male" },
+            { value: "Female", label: "Female" },
+          ]}
           required
         />
 

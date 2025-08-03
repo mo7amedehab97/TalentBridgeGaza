@@ -2,10 +2,13 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { UserRegistrationForm } from "@/components/forms/UserRegistrationForm";
-import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { Button } from "@/components/ui/Button";
+import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
+import { RootState } from "@/store";
 import { useRouter } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
 import { signUpThunk } from "@/features/auth/authSlice";
+import { useToast } from "@/hooks/use-toast";
 
 type Plan = {
   key: string;
@@ -17,8 +20,8 @@ type Plan = {
 const plans: Plan[] = [
   {
     key: "CONTRACTOR",
-    title: "Contractor",
-    description: "I work as a contractor or remote employee.",
+    title: "Talent",
+    description: "I want to offer my services.",
     icon: (
       <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
         <rect width="32" height="32" rx="8" fill="#E6F0FA" />
@@ -53,6 +56,14 @@ const plans: Plan[] = [
   },
 ];
 
+// Map role to corresponding roleId
+const roleToIdMap = {
+  CONTRACTOR: 3, // talent
+  CLIENT: 2, // client
+  ADMIN: 1, // admin
+  COMPANY: 2, // company maps to client role for now
+} as const;
+
 export default function SignupPage() {
   const [step, setStep] = useState(1);
   const [selectedPlan, setSelectedPlan] = useState<
@@ -61,6 +72,18 @@ export default function SignupPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);
+  const { loading, user } = useAppSelector((state: RootState) => state.auth);
+  const { showSuccess, showError } = useToast();
+
+  // Redirect if user is already logged in
+  React.useEffect(() => {
+    if (user) {
+      if (user.roleId === 1) router.replace("/admin");
+      else if (user.roleId === 3) router.replace("/moderator");
+      else if (user.roleId === 2) router.replace("/talent");
+      else router.replace("/");
+    }
+  }, [user, router]);
 
   const handleSignup = async (data: {
     firstName: string;
@@ -68,98 +91,142 @@ export default function SignupPage() {
     email: string;
     password: string;
     phoneNumber: string;
-    role: "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY";
+    gender: string;
+    roleId: number;
   }) => {
+    if (!selectedPlan) {
+      setError("Please select an account type");
+      return;
+    }
+
     setError(null);
-    const result = await dispatch(
-      signUpThunk({
-        ...data,
-        role: selectedPlan!,
-      })
-    );
-    if ((result as { success?: boolean }).success) {
-      const signInResult = await signIn("credentials", {
-        redirect: false,
-        email: data.email as string,
-        password: data.password as string,
-      });
-      if (signInResult?.ok) {
-        // Wait for session to update and get the user role
+    try {
+      const result = await dispatch(
+        signUpThunk({
+          firstName: data.firstName.trim(),
+          lastName: data.lastName.trim(),
+          email: data.email.trim().toLowerCase(),
+          password: data.password,
+          phoneNumber: data.phoneNumber.trim(),
+          gender: data.gender,
+          role: selectedPlan,
+        })
+      );
+
+      if (signUpThunk.fulfilled.match(result)) {
+        showSuccess("Signup successful!");
         const session = await getSession();
-        const userRole =
-          session?.user && (session.user as { role?: string }).role;
-        if (userRole === "ADMIN") router.replace("/admin");
-        else if (userRole === "CONTRACTOR") router.replace("/moderator");
-        else if (userRole === "CLIENT") router.replace("/talent");
-        else router.replace("/");
+        if (session) {
+          router.push("/");
+        } else {
+          await signIn("credentials", {
+            email: data.email,
+            password: data.password,
+            redirect: false,
+          });
+          router.push("/");
+        }
+      } else if (signUpThunk.rejected.match(result)) {
+        const errorMessage =
+          typeof result.payload === "string"
+            ? result.payload
+            : "An unknown error occurred during signup.";
+        showError(errorMessage);
+        setError(errorMessage);
       }
-    } else {
-      setError((result as { message?: string }).message || "");
+    } catch (err: unknown) {
+      let errorMessage: string;
+      if (
+        err &&
+        typeof err === "object" &&
+        "response" in err &&
+        err.response &&
+        typeof err.response === "object" &&
+        "data" in err.response &&
+        err.response.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        errorMessage =
+          (err.response as { data?: { message?: string } }).data?.message ||
+          "An unexpected error occurred.";
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      } else {
+        errorMessage = "An unexpected error occurred.";
+      }
+      showError(errorMessage);
+      setError(errorMessage);
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-bg-secondary">
-      {/* Left: Stepper & Form */}
-      <div className=" flex flex-col justify-center px-8 max-w-xl mx-auto w-[50vw]">
-        {step === 1 && (
-          <div>
-            <h1 className="text-3xl font-bold mb-6">
-              Please choose the account that suits you
-            </h1>
-            <div className="space-y-4 mb-8">
-              {plans.map((plan: Plan) => (
-                <button
-                  key={plan.key}
-                  type="button"
-                  onClick={() =>
-                    setSelectedPlan(
-                      plan.key as "CONTRACTOR" | "ADMIN" | "CLIENT" | "COMPANY"
-                    )
-                  }
-                  className={`w-full flex items-center gap-4 p-4 border rounded-lg transition-all ${
-                    selectedPlan === plan.key
-                      ? "border-primary-blue bg-blue-50"
-                      : "border-border-medium bg-white"
-                  }`}
-                >
-                  {plan.icon}
-                  <div className="text-left">
-                    <div className="font-semibold text-lg">{plan.title}</div>
-                    <div className="text-sm text-text-muted">
-                      {plan.description}
+    <div className="min-h-screen flex bg-gray-50">
+      {/* Left side with form */}
+      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50vw]">
+        <div className="mt-6">
+          <h2 className="text-2xl font-semibold my-12  text-center">
+            Create Your Account
+          </h2>
+          {step === 1 ? (
+            <div className="space-y-6">
+              <h3 className="text-lg font-medium text-gray-900">I am a...</h3>
+              <div className="space-y-4">
+                {plans.map((plan) => (
+                  <div
+                    key={plan.key}
+                    onClick={() =>
+                      setSelectedPlan(
+                        plan.key as
+                          | "CONTRACTOR"
+                          | "ADMIN"
+                          | "CLIENT"
+                          | "COMPANY"
+                      )
+                    }
+                    className={`relative rounded-lg border bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-indigo-500 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 cursor-pointer ${
+                      selectedPlan === plan.key
+                        ? "border-indigo-500 ring-2 ring-indigo-500"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {plan.icon}
+                    <div className="flex-1 min-w-0">
+                      <span className="absolute inset-0" aria-hidden="true" />
+                      <p className="text-sm font-medium text-gray-900">
+                        {plan.title}
+                      </p>
+                      <p className="text-sm text-gray-500 truncate">
+                        {plan.description}
+                      </p>
                     </div>
                   </div>
-                  <span className="ml-auto">
-                    <span
-                      className={`inline-block w-5 h-5 rounded-full border-2 ${
-                        selectedPlan === plan.key
-                          ? "border-primary-blue bg-primary-blue"
-                          : "border-border-medium bg-white"
-                      }`}
-                    ></span>
-                  </span>
-                </button>
-              ))}
+                ))}
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => setStep(2)}
+                  disabled={!selectedPlan}
+                >
+                  Continue
+                </Button>
+              </div>
             </div>
-            <button
-              className="w-full bg-primary-blue text-white py-3 rounded-lg font-semibold disabled:opacity-50"
-              disabled={!selectedPlan}
-              onClick={() => setStep(2)}
-            >
-              Continue
-            </button>
-          </div>
-        )}
-        {step === 2 && (
-          <div>
-            <UserRegistrationForm onSubmit={handleSignup} />
-            {error && <div className="text-red-500 mt-2">{error}</div>}
-          </div>
-        )}
+          ) : (
+            <UserRegistrationForm
+              onSubmit={handleSignup}
+              onBack={() => setStep(1)}
+              roleId={selectedPlan ? roleToIdMap[selectedPlan] : 2}
+              error={error}
+              isLoading={loading}
+            />
+          )}
+        </div>
       </div>
       {/* Right: Image */}
-      <div className="hidden md:flex  items-center justify-center  w-[50vw]">
+      <div className="hidden md:flex items-center justify-center w-[50vw] bg-gray-100">
         <Image
           src="/images/authSIDE.svg"
           alt="Authentication Illustration"

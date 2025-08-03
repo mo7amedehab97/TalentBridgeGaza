@@ -12,50 +12,58 @@ const moderatorRoutePrefix = '/moderator';
 const userRoutePrefix = '/talent';
 
 const publicRoutes = ['/login', '/signup', '/', '/pricing', '/contact', '/about', '/terms', '/privacy', '/faq'];
+// creatate admin routes and moderator routes 
+// Define which routes are protected for each role
+export const adminRoutes = [
+  '/admin',
+  '/admin/dashboard',
+  '/admin/settings',
+  // add more admin-only routes here
+];
+
+export const moderatorRoutes = [
+  '/moderator',
+  '/moderator/dashboard',
+  '/moderator/settings',
+  // add more moderator-only routes here
+];
+
+export const userRoutes = [
+  '/talent',
+  '/talent/dashboard',
+  '/talent/profile',
+  // add more user-only routes here
+];
+
 
 
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  const token1 = req.cookies.get('token');
-
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  const role = token?.role as string | undefined;
+  const roleId = token?.roleId as number | undefined;
   const isPublicRoute = publicRoutes.includes(path);
-
-  console.log(
-    '[middleware] User role:', role,
-    '| Log label: SIMPLE',
-    '| Token:', token,
-    '| Path:', path,
-    '| Is public route:', isPublicRoute,
-    '| Cookie token:', token1
-  );
 
   // If not authenticated and not on a public route, redirect to login
   if (!token && !isPublicRoute) {
-    console.log('[middleware] Not authenticated and not on a public route. Redirecting to /login.');
     return NextResponse.redirect(new URL('/login', req.nextUrl));
   }
 
-  // If authenticated, check if route is allowed for the user's role
-  if (token && !isPublicRoute) {
+  // If authenticated, check if route is allowed for the user's roleId
+  if (token && !isPublicRoute ) {
     // Admin: only allow /admin/*
-    if (role === 'admin' && !path.startsWith(adminRoutePrefix)) {
-      console.log('[middleware] Admin trying to access non-admin route. Redirecting to /admin.');
+    if (roleId === 1 && !path.startsWith(adminRoutePrefix)) {
       return NextResponse.redirect(new URL('/admin', req.nextUrl));
     }
     // Moderator: only allow /moderator/*, but not /admin/*
-    if (role === 'moderator') {
+    if (roleId === 3) {
       if (path.startsWith(adminRoutePrefix) || !path.startsWith(moderatorRoutePrefix)) {
-        console.log('[middleware] Moderator trying to access forbidden route. Redirecting to /moderator.');
         return NextResponse.redirect(new URL('/moderator', req.nextUrl));
       }
     }
     // User: only allow /talent/*, but not /admin/* or /moderator/*
-    if (role === 'user') {
+    if (roleId === 2) {
       if (path.startsWith(adminRoutePrefix) || path.startsWith(moderatorRoutePrefix) || !path.startsWith(userRoutePrefix)) {
-        console.log('[middleware] User trying to access forbidden route. Redirecting to /talent.');
         return NextResponse.redirect(new URL('/talent', req.nextUrl));
       }
     }
@@ -63,16 +71,17 @@ export async function middleware(req: NextRequest) {
 
   // If authenticated and on a public route, redirect to their dashboard
   if (token && isPublicRoute) {
-    if (role === 'admin' && !path.startsWith('/admin')) {
+    if (roleId === 1 && !path.startsWith('/admin')) {
       return NextResponse.redirect(new URL('/admin', req.nextUrl));
     }
-    if (role === 'moderator' && !path.startsWith('/moderator')) {
+    if (roleId === 3 && !path.startsWith('/moderator')) {
       return NextResponse.redirect(new URL('/moderator', req.nextUrl));
     }
-    if (role === 'user' && !path.startsWith('/talent')) {
+    if (roleId === 2 && !path.startsWith('/talent')) {
       return NextResponse.redirect(new URL('/talent', req.nextUrl));
     }
   }
+
 
   return NextResponse.next();
 }

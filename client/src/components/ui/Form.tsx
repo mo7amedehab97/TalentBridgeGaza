@@ -6,6 +6,7 @@ import {
   SubmitHandler,
   DefaultValues,
 } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 interface FormProps<T extends z.ZodTypeAny> {
@@ -13,6 +14,7 @@ interface FormProps<T extends z.ZodTypeAny> {
   children: React.ReactNode;
   defaultValues?: Partial<z.infer<T>>;
   className?: string;
+  schema?: T;
 }
 
 export function Form<T extends z.ZodTypeAny>({
@@ -20,9 +22,11 @@ export function Form<T extends z.ZodTypeAny>({
   children,
   defaultValues,
   className = "",
+  schema,
 }: FormProps<T>) {
   const methods = useForm<z.infer<T>>({
     defaultValues: defaultValues as DefaultValues<z.infer<T>>,
+    resolver: schema ? zodResolver(schema) : undefined,
   });
 
   const { handleSubmit } = methods;

@@ -1,83 +1,46 @@
 "use client";
 import React from "react";
 import Container from "../Container";
-import { useSession, signOut } from "next-auth/react";
-import { Button } from "./Button";
+import Image from "next/image";
 
 const socialIcons = [
   {
     name: "LinkedIn",
     href: "#",
-    svg: (
-      <svg width="20" height="20" fill="currentColor" className="text-blue-700">
-        <circle cx="10" cy="10" r="10" />
-      </svg>
-    ),
+    src: "/images/linkedin.svg",
   },
   {
     name: "X",
     href: "#",
-    svg: (
-      <svg width="20" height="20" fill="currentColor" className="text-black">
-        <circle cx="10" cy="10" r="10" />
-      </svg>
-    ),
+    src: "/images/x-twitter.svg",
   },
   {
     name: "Instagram",
     href: "#",
-    svg: (
-      <svg width="20" height="20" fill="currentColor" className="text-pink-500">
-        <circle cx="10" cy="10" r="10" />
-      </svg>
-    ),
+    src: "/images/instagram.svg",
   },
   {
     name: "Facebook",
     href: "#",
-    svg: (
-      <svg width="20" height="20" fill="currentColor" className="text-blue-500">
-        <circle cx="10" cy="10" r="10" />
-      </svg>
-    ),
+    src: "/images/facebook.svg",
   },
   {
     name: "YouTube",
     href: "#",
-    svg: (
-      <svg width="20" height="20" fill="currentColor" className="text-red-600">
-        <circle cx="10" cy="10" r="10" />
-      </svg>
-    ),
+    src: "/images/youtube.svg",
   },
 ];
 
 const paymentIcons = [
-  <svg key="visa" width="24" height="16" className="inline mx-1">
-    <rect width="24" height="16" rx="2" fill="#1A1F71" />
-  </svg>,
-  <svg key="mc" width="24" height="16" className="inline mx-1">
-    <rect width="24" height="16" rx="2" fill="#EB001B" />
-  </svg>,
-  <svg key="paypal" width="24" height="16" className="inline mx-1">
-    <rect width="24" height="16" rx="2" fill="#003087" />
-  </svg>,
-  <svg key="apple" width="24" height="16" className="inline mx-1">
-    <rect width="24" height="16" rx="2" fill="#000" />
-  </svg>,
+  { key: "visa", src: "/images/visa.svg" },
+  { key: "mastercard", src: "/images/mastercard.svg" },
+  { key: "paypal", src: "/images/paypal.svg" },
+  { key: "apple", src: "/images/apple-pay.svg" },
 ];
 
 const Footer: React.FC = () => {
-  const { data: session, status } = useSession();
-  const user = session?.user;
-  const isAuthenticated = status === "authenticated";
-
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/login" });
-  };
-
   return (
-    <footer className="bg-[#f7fafd] border-t border-gray-200  pt-12 pb-4 text-sm text-dark-gray">
+    <footer className="bg-[#f7fafd] border-t  border-gray-200  pt-12 pb-4 text-sm text-dark-gray">
       <Container>
         {/* Top Cards Section */}
         <div className="flex flex-col md:flex-row gap-6 mb-12">
@@ -163,7 +126,12 @@ const Footer: React.FC = () => {
                   aria-label={icon.name}
                   className="hover:opacity-80"
                 >
-                  {icon.svg}
+                  <Image
+                    src={icon.src}
+                    alt={icon.name}
+                    width={20}
+                    height={20}
+                  />
                 </a>
               ))}
             </div>
@@ -179,28 +147,16 @@ const Footer: React.FC = () => {
         </div>
         <div className="flex flex-col md:flex-row justify-between items-center mt-8 border-t border-gray-200 pt-4">
           <div className="flex items-center space-x-2 mb-2 md:mb-0">
-            {paymentIcons}
-          </div>
-          <div className="flex items-center gap-4">
-            {isAuthenticated && user ? (
-              <>
-                <span className="font-semibold text-primary-blue mr-2">
-                  {user.email}
-                </span>
-                <Button variant="destructive" onClick={handleLogout}>
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button to="/login" variant="outline">
-                  Sign In
-                </Button>
-                <Button to="/signup" variant="primary">
-                  Get Started
-                </Button>
-              </>
-            )}
+            {paymentIcons.map((icon) => (
+              <Image
+                key={icon.key}
+                src={icon.src}
+                alt={icon.key}
+                width={24}
+                height={16}
+                className="inline mx-1"
+              />
+            ))}
           </div>
           <div className="text-xs text-gray-500 ml-4">
             © Talent Bridge Ltd 2025

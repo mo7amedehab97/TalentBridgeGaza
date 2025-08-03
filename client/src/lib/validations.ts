@@ -47,6 +47,10 @@ export const roleSchema = z.enum(['ADMIN', 'CONTRACTOR', 'CLIENT', 'COMPANY'], {
   invalid_type_error: 'Invalid role value'
 });
 
+export const roleIdSchema = z.number().int().refine(val => [1, 2, 3].includes(val), {
+  message: 'Invalid roleId value',
+});
+
 // User registration schema
 export const userRegistrationSchema = z.object({
   firstName: nameSchema,
@@ -54,7 +58,7 @@ export const userRegistrationSchema = z.object({
   email: emailSchema,
   phoneNumber: phoneNumberSchema,
   password: passwordSchema,
-  role: roleSchema.default('CONTRACTOR'),
+  roleId: roleIdSchema.default(3),
 });
 
 // User login schema
@@ -66,15 +70,22 @@ export const userLoginSchema = z.object({
 
 // Profile update schema
 export const profileUpdateSchema = z.object({
-  firstName: z.string().min(1, 'First name is required').min(2, 'First name must be at least 2 characters'),
-  lastName: z.string().min(1, 'Last name is required').min(2, 'Last name must be at least 2 characters'),
+  name: z.string().min(1, 'Name is required').min(2, 'Name must be at least 2 characters').max(100, 'Name must be less than 100 characters'),
   email: emailSchema,
-  phone: phoneSchema,
+  phoneNumber: phoneNumberSchema,
+  gender: z.enum(['Male', 'Female'], {
+    required_error: 'Please select a gender',
+  }),
+  // Talent-specific fields
   bio: z.string().max(500, 'Bio must be less than 500 characters').optional(),
-  location: z.string().min(1, 'Location is required'),
-  website: urlSchema,
-  linkedin: urlSchema,
-  github: urlSchema,
+  location: z.string().min(1, 'Location is required').max(255, 'Location must be less than 255 characters').optional(),
+  hourlyRate: z.number().min(0, 'Hourly rate must be positive').max(1000, 'Hourly rate must be less than 1000').optional(),
+  yearOfExperience: z.number().min(0, 'Years of experience must be positive').max(50, 'Years of experience must be less than 50').optional(),
+  cvUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+  // Recruiter-specific fields
+  companyName: z.string().min(1, 'Company name is required').max(255, 'Company name must be less than 255 characters').optional(),
+  companyTitle: z.string().min(1, 'Job title is required').max(255, 'Job title must be less than 255 characters').optional(),
+  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
 });
 
 // Job application schema

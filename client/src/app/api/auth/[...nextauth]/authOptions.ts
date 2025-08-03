@@ -6,7 +6,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      role: string;
+      roleId: number;
     } & DefaultSession["user"];
     accessToken?: string;
   }
@@ -30,14 +30,14 @@ export const authOptions: AuthOptions = {
 
         try {
           const response = await axios.post(
-            `${API_URL}/api/auth/signin`,
+            `${API_URL}/api/v1/auth/login`,
             {
               email: credentials.email,
               password: credentials.password,
             },
             {
               headers: { 'Content-Type': 'application/json' },
-              withCredentials: true,
+              withCredentials: false,
             }
           );
 
@@ -45,7 +45,10 @@ export const authOptions: AuthOptions = {
           
           if (data.success && data.data && data.token) {
             return {
-              ...data.data,
+              id: data.data.id,
+              name: data.data.name,
+              email: data.data.email,
+              roleId: data.data.roleId,
               accessToken: data.token,
             };
           }
@@ -65,12 +68,15 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
     maxAge: 7 * 24 * 60 * 60, // 7 days (matches backend JWT_EXPIRES_IN)
   },
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET,
+  },
   callbacks: {
     async jwt({ token, user }) {
       // Initial sign in
       if (user) {
         token.accessToken = (user as { accessToken?: string }).accessToken;
-        token.role = (user as { role?: string }).role;
+        token.roleId = (user as { roleId?: number }).roleId;
         token.id = (user as { id?: string }).id;
       }
       return token;
@@ -80,7 +86,7 @@ export const authOptions: AuthOptions = {
         session.user = {
           ...session.user,
           id: token.id as string,
-          role: token.role as string,
+          roleId: token.roleId as number,
         };
         session.accessToken = token.accessToken as string;
       }
@@ -89,7 +95,16 @@ export const authOptions: AuthOptions = {
   },
   pages: {
     signIn: "/login",
+    signOut: "/login",
     error: "/login",
+  },
+  events: {
+    async signOut() {
+      // Clear any client-side auth state
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('authState');
+      }
+    },
   },
   secret: process.env.NEXTAUTH_SECRET || 'your-secret-key',
   debug: process.env.NODE_ENV === 'development',
